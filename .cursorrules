@@ -1,0 +1,197 @@
+# Flutter Shader FX - Cursor AI Rules
+# A comprehensive Flutter package providing pre-built, performance-optimized shader effects
+
+## Project Overview
+You are working on Flutter Shader FX, the first comprehensive shader effects library for Flutter. This package provides developers with easy-to-use, GPU-accelerated visual effects without requiring shader programming knowledge. The package targets Flutter's Impeller renderer (Vulkan/Metal) and focuses on mobile-first performance optimization.
+
+## Core Architecture Principles
+- **Performance First**: All effects must run smoothly on mid-range mobile devices (30fps minimum)
+- **Simple API**: Developers should achieve stunning effects with minimal code
+- **Impeller Native**: Built specifically for Flutter's Impeller renderer, not legacy Skia
+- **Zero Shader Knowledge Required**: Widget-based API abstracts GLSL complexity
+- **Cross-Platform Consistency**: Same effects work identically across iOS, Android, Web, Desktop
+
+## Project Structure
+```
+flutter_shader_fx/
+├── lib/
+│   ├── src/
+│   │   ├── effects/           # Effect categories
+│   │   ├── core/              # Base classes and controllers
+│   │   ├── widgets/           # Public widget APIs
+│   │   └── utils/             # Helper utilities
+│   └── flutter_shader_fx.dart # Main export file
+├── shaders/                   # GLSL fragment shaders
+├── example/                   # Comprehensive demo app
+└── test/                      # Unit and widget tests
+```
+
+## Code Style & Standards
+
+### Dart Code Guidelines
+- **Follow official Dart style guide** with 80-character line limits
+- **Use descriptive variable names**: `plasmaIntensity` not `intensity`
+- **Document all public APIs** with comprehensive dartdoc comments
+- **Prefer composition over inheritance** for effect combinations
+- **Use immutable classes** where possible with `@immutable` annotations
+- **Handle errors gracefully** - never crash the app due to shader issues
+
+### GLSL Shader Guidelines
+- **Use `precision mediump float`** for mobile performance (not highp unless required)
+- **Maximum 64 iterations** in any loop (ray marching, particle systems)
+- **Comment complex math operations** - explain what each function does
+- **Use consistent uniform naming**: `u_` prefix for all uniforms
+- **Optimize for mobile GPUs**: avoid branches, prefer mix() over if/else
+- **Test on actual devices**: shader performance varies significantly across GPUs
+
+### Performance Requirements
+- **60fps on flagship devices** (iPhone 14, Pixel 7, etc.)
+- **30fps on mid-range devices** (3+ year old devices)
+- **Graceful degradation** - automatically reduce quality if framerate drops
+- **Memory conscious** - maximum 50MB additional RAM usage
+- **Battery efficient** - effects should not cause significant battery drain
+
+## Widget API Design Patterns
+
+### Simple Usage Pattern
+```dart
+// Minimal code for maximum impact
+ShaderBackground.plasma()
+ShaderButton.ripple(onPressed: () {}, child: Text('Click'))
+```
+
+### Customization Pattern
+```dart
+// Common customizations should be simple
+ShaderBackground.plasma(
+  colors: [Colors.purple, Colors.cyan],
+  speed: 1.5,
+  intensity: 0.8,
+)
+```
+
+### Advanced Usage Pattern
+```dart
+// Full control for power users
+ShaderBackground.custom(
+  shader: 'plasma',
+  uniforms: {
+    'u_color1': Colors.red,
+    'u_color2': Colors.blue,
+    'u_speed': 2.0,
+  },
+)
+```
+
+## Effect Categories & Requirements
+
+### Background Effects (8 total)
+- **Plasma**: Organic flowing colors with customizable palette
+- **Noise Field**: Perlin noise patterns with adjustable scale
+- **Liquid Metal**: Reflective metallic surface with lighting
+- **Fractal**: Mandelbrot/Julia variations with zoom capability
+- **Particle Field**: Floating particles with physics simulation
+- **Wave**: Sine wave interference with frequency control
+- **Galaxy**: Spiral galaxy with twinkling stars
+- **Aurora**: Northern lights with realistic color gradients
+
+### Interactive Effects (6 total)
+- **Ripple**: Touch ripple expanding from interaction point
+- **Magnetic**: Visual elements attracted to cursor/finger
+- **Glow Pulse**: Breathing glow effect on hover/press
+- **Dissolve**: Particle dissolve transition between states
+- **Holographic**: Rainbow hologram effect with viewing angle
+- **Electric**: Lightning/electricity following touch path
+
+### Loading Effects (4 total)
+- **Liquid Progress**: Fluid filling animation tied to progress value
+- **Geometric Morph**: Shape transformation indicating progress
+- **Spiral Galaxy**: Rotating spiral with progress-based intensity
+- **Quantum Dots**: Particle system loader with physics
+
+### Decorative Effects (4 total)
+- **Glass Morph**: iOS-style frosted glass with blur
+- **Neon Glow**: Cyberpunk neon borders and highlights
+- **Depth Shadow**: 3D depth illusion for flat surfaces
+- **Bokeh**: Depth of field blur with customizable focus
+
+## Implementation Guidelines
+
+### Base Classes
+- **BaseShaderPainter**: All custom painters extend this class
+- **EffectController**: Manages animations and state for all effects
+- **PerformanceManager**: Handles device capability detection and optimization
+- **ShaderLoader**: Manages shader asset loading and caching
+
+### Uniform Management
+```dart
+// Standard uniforms for all effects (locations 0-5)
+// u_resolution (vec2) - Screen resolution
+// u_time (float) - Animation time
+// u_touch (vec2) - Touch/mouse position (normalized)
+// u_intensity (float) - Effect intensity (0.0-1.0)
+// u_color1 (vec4) - Primary color
+// u_color2 (vec4) - Secondary color
+// Effect-specific uniforms start from location 6
+```
+
+### Error Handling Strategy
+- **Shader compilation failures**: Fall back to solid color or gradient
+- **Performance issues**: Automatically reduce quality settings
+- **Device compatibility**: Detect capabilities and adjust accordingly
+- **Memory constraints**: Implement shader caching and cleanup
+
+### Testing Requirements
+- **Unit tests** for all widget classes and utility functions
+- **Golden tests** for visual effects (where possible)
+- **Performance benchmarks** on multiple device tiers
+- **Integration tests** in example app
+- **Manual testing matrix** across iOS/Android/Web/Desktop
+
+## Development Workflow
+
+### Phase 1: Foundation
+Focus on core architecture and first working effect (Plasma background).
+Priority: Solid foundation over feature quantity.
+
+### Phase 2-4: Effect Implementation
+Implement effects by category, starting with backgrounds (most used).
+Priority: Performance optimization and API consistency.
+
+### Phase 5: Polish & Release
+Comprehensive testing, documentation, and example app.
+Priority: Production readiness and developer experience.
+
+## Documentation Standards
+- **Every public class** needs comprehensive dartdoc
+- **Code examples** for all widgets in documentation
+- **Performance notes** for resource-intensive effects
+- **Customization guides** showing progression from simple to advanced usage
+- **Shader explanations** for developers wanting to understand the math
+
+## Common Pitfalls to Avoid
+- **Don't use browser storage APIs** (localStorage/sessionStorage) - not supported in Flutter
+- **Avoid complex branching in shaders** - use mix(), step(), smoothstep() instead
+- **Never assume device capabilities** - always implement fallbacks
+- **Don't ignore thermal throttling** - monitor and adjust performance
+- **Avoid blocking the UI thread** - keep all heavy operations on GPU
+- **Don't hardcode device-specific values** - use dynamic capability detection
+
+## AI Assistant Guidelines
+When helping with this project:
+- **Prioritize mobile performance** in all shader and Dart code suggestions
+- **Suggest practical examples** that developers would actually use
+- **Consider cross-platform differences** (iOS vs Android GPU characteristics)
+- **Focus on API simplicity** - complex functionality should have simple interfaces
+- **Always include error handling** in code examples
+- **Reference Flutter/Impeller best practices** when available
+- **Suggest testing strategies** for GPU-dependent code
+- **Consider battery and thermal impact** of suggested implementations
+
+## Success Metrics
+- **Technical**: 60fps flagship, 30fps mid-range, <50MB RAM, <2MB package size
+- **Developer Experience**: One-line widget usage for all effects
+- **Community**: 1000+ pub points, 100+ GitHub stars within 6 months
+- **Adoption**: Integration in popular Flutter apps and UI libraries
+
+Remember: This package should make beautiful, performant shader effects accessible to every Flutter developer, regardless of their graphics programming experience.
