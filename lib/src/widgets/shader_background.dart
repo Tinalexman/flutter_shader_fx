@@ -4,6 +4,13 @@ import '../core/base_shader_painter.dart';
 import '../core/effect_controller.dart';
 import '../core/performance_manager.dart';
 import '../effects/background/plasma_effect.dart';
+import '../effects/background/noise_field_effect.dart';
+import '../effects/background/liquid_metal_effect.dart';
+import '../effects/background/fractal_effect.dart';
+import '../effects/background/particle_field_effect.dart';
+import '../effects/background/wave_effect.dart';
+import '../effects/background/galaxy_effect.dart';
+import '../effects/background/aurora_effect.dart';
 
 /// A widget that displays shader effects as a background.
 /// 
@@ -50,7 +57,20 @@ class ShaderBackground extends StatefulWidget {
   }) : effectType = null,
        colors = const [],
        speed = 1.0,
-       intensity = 1.0;
+       intensity = 1.0,
+       scale = 50.0,
+       metallicness = 0.8,
+       roughness = 0.2,
+       zoom = 1.0,
+       center = const Offset(0.5, 0.5),
+       maxIterations = 100,
+       particleCount = 100,
+       particleSize = 2.0,
+       frequency = 2.0,
+       amplitude = 0.5,
+       starCount = 200,
+       spiralArms = 4,
+       layers = 3;
 
   /// Creates a plasma background effect.
   /// 
@@ -68,7 +88,237 @@ class ShaderBackground extends StatefulWidget {
     this.performanceLevel,
   }) : effectType = ShaderEffectType.plasma,
        shader = null,
-       uniforms = const {};
+       uniforms = const {},
+       scale = 50.0,
+       metallicness = 0.8,
+       roughness = 0.2,
+       zoom = 1.0,
+       center = const Offset(0.5, 0.5),
+       maxIterations = 100,
+       particleCount = 100,
+       particleSize = 2.0,
+       frequency = 2.0,
+       amplitude = 0.5,
+       starCount = 200,
+       spiralArms = 4,
+       layers = 3;
+
+  /// Creates a noise field background effect.
+  /// 
+  /// [scale] controls the scale of the noise pattern (higher = smaller details).
+  /// [speed] controls the animation speed (0.0 to 2.0).
+  /// [intensity] controls the effect intensity (0.0 to 1.0).
+  /// [child] is the widget to display on top of the background.
+  /// [performanceLevel] determines the quality settings for the effect.
+  const ShaderBackground.noiseField({
+    super.key,
+    this.scale = 50.0,
+    this.speed = 1.0,
+    this.intensity = 1.0,
+    this.child,
+    this.performanceLevel,
+  }) : effectType = ShaderEffectType.noiseField,
+       shader = null,
+       uniforms = const {},
+       colors = const [Color(0xFF9C27B0), Color(0xFF00BCD4)],
+       metallicness = 0.8,
+       roughness = 0.2,
+       zoom = 1.0,
+       center = const Offset(0.5, 0.5),
+       maxIterations = 100,
+       particleCount = 100,
+       particleSize = 2.0,
+       frequency = 2.0,
+       amplitude = 0.5,
+       starCount = 200,
+       spiralArms = 4,
+       layers = 3;
+
+  /// Creates a liquid metal background effect.
+  /// 
+  /// [metallicness] controls the metallic appearance (0.0 to 1.0).
+  /// [roughness] controls the surface roughness (0.0 to 1.0).
+  /// [speed] controls the animation speed (0.0 to 2.0).
+  /// [child] is the widget to display on top of the background.
+  /// [performanceLevel] determines the quality settings for the effect.
+  const ShaderBackground.liquidMetal({
+    super.key,
+    this.metallicness = 0.8,
+    this.roughness = 0.2,
+    this.speed = 1.0,
+    this.child,
+    this.performanceLevel,
+  }) : effectType = ShaderEffectType.liquidMetal,
+       shader = null,
+       uniforms = const {},
+       colors = const [Color(0xFF9C27B0), Color(0xFF00BCD4)],
+       scale = 50.0,
+       intensity = 1.0,
+       zoom = 1.0,
+       center = const Offset(0.5, 0.5),
+       maxIterations = 100,
+       particleCount = 100,
+       particleSize = 2.0,
+       frequency = 2.0,
+       amplitude = 0.5,
+       starCount = 200,
+       spiralArms = 4,
+       layers = 3;
+
+  /// Creates a fractal background effect.
+  /// 
+  /// [zoom] controls the zoom level (higher = more zoomed in).
+  /// [center] is the center point of the fractal (normalized coordinates).
+  /// [maxIterations] is the maximum number of iterations for fractal calculation.
+  /// [child] is the widget to display on top of the background.
+  /// [performanceLevel] determines the quality settings for the effect.
+  const ShaderBackground.fractal({
+    super.key,
+    this.zoom = 1.0,
+    this.center = const Offset(0.5, 0.5),
+    this.maxIterations = 100,
+    this.child,
+    this.performanceLevel,
+  }) : effectType = ShaderEffectType.fractal,
+       shader = null,
+       uniforms = const {},
+       colors = const [Color(0xFF9C27B0), Color(0xFF00BCD4)],
+       scale = 50.0,
+       metallicness = 0.8,
+       roughness = 0.2,
+       intensity = 1.0,
+       speed = 1.0,
+       particleCount = 100,
+       particleSize = 2.0,
+       frequency = 2.0,
+       amplitude = 0.5,
+       starCount = 200,
+       spiralArms = 4,
+       layers = 3;
+
+  /// Creates a particle field background effect.
+  /// 
+  /// [particleCount] is the number of particles to display.
+  /// [speed] controls the animation speed (0.0 to 2.0).
+  /// [size] controls the size of particles (0.5 to 5.0).
+  /// [child] is the widget to display on top of the background.
+  /// [performanceLevel] determines the quality settings for the effect.
+  const ShaderBackground.particleField({
+    super.key,
+    this.particleCount = 100,
+    this.speed = 1.0,
+    this.particleSize = 2.0,
+    this.child,
+    this.performanceLevel,
+  }) : effectType = ShaderEffectType.particleField,
+       shader = null,
+       uniforms = const {},
+       colors = const [Color(0xFF9C27B0), Color(0xFF00BCD4)],
+       scale = 50.0,
+       metallicness = 0.8,
+       roughness = 0.2,
+       zoom = 1.0,
+       center = const Offset(0.5, 0.5),
+       maxIterations = 100,
+       intensity = 1.0,
+       frequency = 2.0,
+       amplitude = 0.5,
+       starCount = 200,
+       spiralArms = 4,
+       layers = 3;
+
+  /// Creates a wave background effect.
+  /// 
+  /// [frequency] controls the wave frequency (0.5 to 5.0).
+  /// [amplitude] controls the wave amplitude (0.1 to 1.0).
+  /// [speed] controls the animation speed (0.0 to 2.0).
+  /// [child] is the widget to display on top of the background.
+  /// [performanceLevel] determines the quality settings for the effect.
+  const ShaderBackground.wave({
+    super.key,
+    this.frequency = 2.0,
+    this.amplitude = 0.5,
+    this.speed = 1.0,
+    this.child,
+    this.performanceLevel,
+  }) : effectType = ShaderEffectType.wave,
+       shader = null,
+       uniforms = const {},
+       colors = const [Color(0xFF9C27B0), Color(0xFF00BCD4)],
+       scale = 50.0,
+       metallicness = 0.8,
+       roughness = 0.2,
+       zoom = 1.0,
+       center = const Offset(0.5, 0.5),
+       maxIterations = 100,
+       particleCount = 100,
+       particleSize = 2.0,
+       intensity = 1.0,
+       starCount = 200,
+       spiralArms = 4,
+       layers = 3;
+
+  /// Creates a galaxy background effect.
+  /// 
+  /// [starCount] is the number of stars to display.
+  /// [spiralArms] is the number of spiral arms (2 to 6).
+  /// [speed] controls the animation speed (0.0 to 2.0).
+  /// [child] is the widget to display on top of the background.
+  /// [performanceLevel] determines the quality settings for the effect.
+  const ShaderBackground.galaxy({
+    super.key,
+    this.starCount = 200,
+    this.spiralArms = 4,
+    this.speed = 1.0,
+    this.child,
+    this.performanceLevel,
+  }) : effectType = ShaderEffectType.galaxy,
+       shader = null,
+       uniforms = const {},
+       colors = const [Color(0xFF9C27B0), Color(0xFF00BCD4)],
+       scale = 50.0,
+       metallicness = 0.8,
+       roughness = 0.2,
+       zoom = 1.0,
+       center = const Offset(0.5, 0.5),
+       maxIterations = 100,
+       particleCount = 100,
+       particleSize = 2.0,
+       frequency = 2.0,
+       amplitude = 0.5,
+       intensity = 1.0,
+       layers = 3;
+
+  /// Creates an aurora background effect.
+  /// 
+  /// [intensity] controls the aurora intensity (0.0 to 1.0).
+  /// [speed] controls the animation speed (0.0 to 2.0).
+  /// [layers] is the number of aurora layers (1 to 5).
+  /// [child] is the widget to display on top of the background.
+  /// [performanceLevel] determines the quality settings for the effect.
+  const ShaderBackground.aurora({
+    super.key,
+    this.intensity = 0.8,
+    this.speed = 1.0,
+    this.layers = 3,
+    this.child,
+    this.performanceLevel,
+  }) : effectType = ShaderEffectType.aurora,
+       shader = null,
+       uniforms = const {},
+       colors = const [Color(0xFF9C27B0), Color(0xFF00BCD4)],
+       scale = 50.0,
+       metallicness = 0.8,
+       roughness = 0.2,
+       zoom = 1.0,
+       center = const Offset(0.5, 0.5),
+       maxIterations = 100,
+       particleCount = 100,
+       particleSize = 2.0,
+       frequency = 2.0,
+       amplitude = 0.5,
+       starCount = 200,
+       spiralArms = 4;
 
   /// The type of shader effect to use.
   final ShaderEffectType? effectType;
@@ -87,6 +337,45 @@ class ShaderBackground extends StatefulWidget {
 
   /// Effect intensity (0.0 to 1.0).
   final double intensity;
+
+  /// Scale for noise field effect (higher = smaller details).
+  final double scale;
+
+  /// Metallicness for liquid metal effect (0.0 to 1.0).
+  final double metallicness;
+
+  /// Roughness for liquid metal effect (0.0 to 1.0).
+  final double roughness;
+
+  /// Zoom level for fractal effect (higher = more zoomed in).
+  final double zoom;
+
+  /// Center point for fractal effect (normalized coordinates).
+  final Offset center;
+
+  /// Maximum iterations for fractal effect.
+  final int maxIterations;
+
+  /// Particle count for particle field effect.
+  final int particleCount;
+
+  /// Particle size for particle field effect (0.5 to 5.0).
+  final double particleSize;
+
+  /// Wave frequency for wave effect (0.5 to 5.0).
+  final double frequency;
+
+  /// Wave amplitude for wave effect (0.1 to 1.0).
+  final double amplitude;
+
+  /// Star count for galaxy effect.
+  final int starCount;
+
+  /// Spiral arms for galaxy effect (2 to 6).
+  final int spiralArms;
+
+  /// Aurora layers for aurora effect (1 to 5).
+  final int layers;
 
   /// The widget to display on top of the background.
   final Widget? child;
@@ -137,6 +426,55 @@ class _ShaderBackgroundState extends State<ShaderBackground>
         colors: widget.colors,
         speed: widget.speed,
         intensity: widget.intensity,
+        performanceLevel: _performanceManager.performanceLevel,
+      );
+    } else if (widget.effectType == ShaderEffectType.noiseField) {
+      _painter = NoiseFieldEffect(
+        scale: widget.scale,
+        speed: widget.speed,
+        intensity: widget.intensity,
+        performanceLevel: _performanceManager.performanceLevel,
+      );
+    } else if (widget.effectType == ShaderEffectType.liquidMetal) {
+      _painter = LiquidMetalEffect(
+        metallicness: widget.metallicness,
+        roughness: widget.roughness,
+        speed: widget.speed,
+        performanceLevel: _performanceManager.performanceLevel,
+      );
+    } else if (widget.effectType == ShaderEffectType.fractal) {
+      _painter = FractalEffect(
+        zoom: widget.zoom,
+        center: widget.center,
+        maxIterations: widget.maxIterations,
+        performanceLevel: _performanceManager.performanceLevel,
+      );
+    } else if (widget.effectType == ShaderEffectType.particleField) {
+      _painter = ParticleFieldEffect(
+        particleCount: widget.particleCount,
+        speed: widget.speed,
+        size: widget.particleSize,
+        performanceLevel: _performanceManager.performanceLevel,
+      );
+    } else if (widget.effectType == ShaderEffectType.wave) {
+      _painter = WaveEffect(
+        frequency: widget.frequency,
+        amplitude: widget.amplitude,
+        speed: widget.speed,
+        performanceLevel: _performanceManager.performanceLevel,
+      );
+    } else if (widget.effectType == ShaderEffectType.galaxy) {
+      _painter = GalaxyEffect(
+        starCount: widget.starCount,
+        spiralArms: widget.spiralArms,
+        speed: widget.speed,
+        performanceLevel: _performanceManager.performanceLevel,
+      );
+    } else if (widget.effectType == ShaderEffectType.aurora) {
+      _painter = AuroraEffect(
+        intensity: widget.intensity,
+        speed: widget.speed,
+        layers: widget.layers,
         performanceLevel: _performanceManager.performanceLevel,
       );
     } else if (widget.shader != null) {
