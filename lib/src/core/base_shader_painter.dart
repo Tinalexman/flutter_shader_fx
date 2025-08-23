@@ -51,59 +51,17 @@ abstract class BaseShaderPainter extends CustomPainter {
     if (_fragmentShader != null) return;
 
     try {
-      final shaderSource = await _loadShaderSource();
-      // FragmentProgram program = await FragmentProgram.fromAsset(
-      //   'packages/flutter_shader_fx/shaders/$shaderPath'
-      // );
-
-      // _fragmentShader = program.fragmentShader;
-      _fragmentShader = await FragmentShader.compile(
-        shaderSource,
-        uniformFloatCount: _getUniformFloatCount(),
-        uniformIntCount: _getUniformIntCount(),
+      // Load shader using FragmentProgram (modern approach)
+      FragmentProgram program = await FragmentProgram.fromAsset(
+        'packages/flutter_shader_fx/shaders/$shaderPath'
       );
+
+      _fragmentShader = program.fragmentShader();
     } catch (e) {
       // Log error but don't crash - fall back to solid color
       debugPrint('Failed to compile shader $shaderPath: $e');
       _fragmentShader = null;
     }
-  }
-
-  /// Loads the GLSL shader source code from the assets.
-  Future<String> _loadShaderSource() async {
-    final assetPath = 'packages/flutter_shader_fx/shaders/$shaderPath';
-    return await rootBundle.loadString(assetPath);
-  }
-
-  /// Gets the number of float uniforms used by this shader.
-  /// 
-  /// Override this method to specify the exact number of float uniforms
-  /// your shader uses for optimal performance.
-  int _getUniformFloatCount() {
-    // Default implementation counts common uniforms
-    int count = 0;
-    
-    // Standard uniforms (locations 0-5)
-    count += 6; // u_resolution, u_time, u_touch, u_intensity, u_color1, u_color2
-    
-    // Count additional float uniforms from the uniforms map
-    for (final value in uniforms.values) {
-      if (value is num) count++;
-      if (value is Color) count += 4; // RGBA
-      if (value is Offset) count += 2; // x, y
-      if (value is Size) count += 2; // width, height
-    }
-    
-    return count;
-  }
-
-  /// Gets the number of integer uniforms used by this shader.
-  /// 
-  /// Override this method to specify the exact number of integer uniforms
-  /// your shader uses for optimal performance.
-  int _getUniformIntCount() {
-    // Most shaders don't use integer uniforms by default
-    return 0;
   }
 
   /// Sets up the shader uniforms before painting.
@@ -114,36 +72,37 @@ abstract class BaseShaderPainter extends CustomPainter {
     if (_fragmentShader == null) return;
 
     final shader = _fragmentShader!;
+    int floatIndex = 0;
     
-    // Set standard uniforms (locations 0-5)
-    shader.setFloat('u_resolution', size.width, size.height);
-    shader.setFloat('u_time', DateTime.now().millisecondsSinceEpoch / 1000.0);
+    // Set standard uniforms
+    shader.setFloat(floatIndex++, size.width);
+    shader.setFloat(floatIndex++, size.height);
+    shader.setFloat(floatIndex++, DateTime.now().millisecondsSinceEpoch / 1000.0);
     
     // Set touch position (normalized coordinates)
     final touchPos = _getTouchPosition();
-    shader.setFloat('u_touch', touchPos.dx, touchPos.dy);
+    shader.setFloat(floatIndex++, touchPos.dx);
+    shader.setFloat(floatIndex++, touchPos.dy);
     
     // Set intensity (default to 1.0)
-    shader.setFloat('u_intensity', uniforms['u_intensity'] ?? 1.0);
+    shader.setFloat(floatIndex++, (uniforms['u_intensity'] as num?)?.toDouble() ?? 1.0);
     
     // Set colors (default to purple and cyan)
-    final color1 = uniforms['u_color1'] ?? const Color(0xFF9C27B0);
-    final color2 = uniforms['u_color2'] ?? const Color(0xFF00BCD4);
-    shader.setFloat('u_color1', 
-      color1.red / 255.0, 
-      color1.green / 255.0, 
-      color1.blue / 255.0, 
-      color1.alpha / 255.0
-    );
-    shader.setFloat('u_color2', 
-      color2.red / 255.0, 
-      color2.green / 255.0, 
-      color2.blue / 255.0, 
-      color2.alpha / 255.0
-    );
+    final color1 = uniforms['u_color1'] as Color? ?? const Color(0xFF9C27B0);
+    final color2 = uniforms['u_color2'] as Color? ?? const Color(0xFF00BCD4);
+    
+    shader.setFloat(floatIndex++, color1.red / 255.0);
+    shader.setFloat(floatIndex++, color1.green / 255.0);
+    shader.setFloat(floatIndex++, color1.blue / 255.0);
+    shader.setFloat(floatIndex++, color1.alpha / 255.0);
+    
+    shader.setFloat(floatIndex++, color2.red / 255.0);
+    shader.setFloat(floatIndex++, color2.green / 255.0);
+    shader.setFloat(floatIndex++, color2.blue / 255.0);
+    shader.setFloat(floatIndex++, color2.alpha / 255.0);
     
     // Set custom uniforms
-    _setCustomUniforms(shader);
+    _setCustomUniforms(shader, floatIndex);
   }
 
   /// Gets the current touch position in normalized coordinates (0.0 to 1.0).
@@ -157,7 +116,8 @@ abstract class BaseShaderPainter extends CustomPainter {
   /// Sets custom uniforms specific to this shader effect.
   /// 
   /// Override this method to set any additional uniforms beyond the standard ones.
-  void _setCustomUniforms(FragmentShader shader) {
+  /// [startIndex] is the next available float uniform index.
+  void _setCustomUniforms(FragmentShader shader, int startIndex) {
     // Default implementation does nothing
     // Override in subclasses to set effect-specific uniforms
   }
@@ -174,7 +134,7 @@ abstract class BaseShaderPainter extends CustomPainter {
     
     // Create a paint object with the shader
     final paint = Paint()
-      ..shader = _fragmentShader!
+      ..shader = _fragmentShader
       ..filterQuality = FilterQuality.high;
     
     // Draw the full canvas with the shader
@@ -189,8 +149,8 @@ abstract class BaseShaderPainter extends CustomPainter {
     final paint = Paint()
       ..shader = LinearGradient(
         colors: [
-          uniforms['u_color1'] ?? const Color(0xFF9C27B0),
-          uniforms['u_color2'] ?? const Color(0xFF00BCD4),
+          uniforms['u_color1'] as Color? ?? const Color(0xFF9C27B0),
+          uniforms['u_color2'] as Color? ?? const Color(0xFF00BCD4),
         ],
       ).createShader(Offset.zero & size);
     
@@ -204,9 +164,8 @@ abstract class BaseShaderPainter extends CustomPainter {
            performanceLevel != oldDelegate.performanceLevel;
   }
 
-  @override
+  /// Disposes of shader resources.
   void dispose() {
     _fragmentShader?.dispose();
-    super.dispose();
   }
 }
