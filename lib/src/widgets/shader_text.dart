@@ -291,7 +291,7 @@ class _CustomTextShaderPainter extends BaseShaderPainter {
   }
 
   @override
-  void _setCustomUniforms(FragmentShader shader) {
+  void setCustomUniforms(FragmentShader shader, int index) {
     // Set custom uniforms from the uniforms map
     for (final entry in uniforms.entries) {
       final key = entry.key;

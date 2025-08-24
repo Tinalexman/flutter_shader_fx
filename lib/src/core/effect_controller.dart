@@ -30,10 +30,14 @@ class EffectController extends ChangeNotifier {
   /// 
   /// [autoDispose] determines whether the controller automatically
   /// disposes itself when no listeners are attached.
-  EffectController({this.autoDispose = true});
+  EffectController({this.autoDispose = false}); // Changed default to false
 
   /// Whether to automatically dispose the controller when no listeners are attached.
   final bool autoDispose;
+
+  /// Whether the controller has been disposed.
+  bool _disposed = false;
+  bool get isDisposed => _disposed;
 
   /// Current animation value (0.0 to 1.0).
   double _animationValue = 0.0;
@@ -72,46 +76,52 @@ class EffectController extends ChangeNotifier {
   /// 
   /// [value] should be between 0.0 and 1.0.
   void setAnimationValue(double value) {
+    if (_disposed) return;
     _animationValue = value.clamp(0.0, 1.0);
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   /// Sets the touch position.
   /// 
   /// [position] should be in normalized coordinates (0.0 to 1.0).
   void setTouchPosition(Offset position) {
+    if (_disposed) return;
     _touchPosition = Offset(
       position.dx.clamp(0.0, 1.0),
       position.dy.clamp(0.0, 1.0),
     );
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   /// Sets the effect intensity.
   /// 
   /// [intensity] should be between 0.0 and 1.0.
   void setIntensity(double intensity) {
+    if (_disposed) return;
     _intensity = intensity.clamp(0.0, 1.0);
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   /// Sets the primary color.
   void setColor1(Color color) {
+    if (_disposed) return;
     _color1 = color;
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   /// Sets the secondary color.
   void setColor2(Color color) {
+    if (_disposed) return;
     _color2 = color;
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   /// Sets both colors at once.
   void setColors(Color color1, Color color2) {
+    if (_disposed) return;
     _color1 = color1;
     _color2 = color2;
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   /// Animates a parameter over time.
@@ -123,18 +133,21 @@ class EffectController extends ChangeNotifier {
   /// [reverse] determines whether the animation should reverse on repeat.
   Future<void> animate({
     required Duration duration,
+    required TickerProvider vsync,
     Curve curve = Curves.linear,
     required void Function(double value) callback,
     bool repeat = false,
     bool reverse = false,
   }) async {
+    if (_disposed) return;
+    
     _isAnimating = true;
-    notifyListeners();
+    _safeNotifyListeners();
 
     _animationController?.dispose();
     _animationController = AnimationController(
       duration: duration,
-      vsync: _createTickerProvider(),
+      vsync: vsync, // Use provided vsync instead of creating our own
     );
 
     final animation = Tween<double>(
@@ -146,10 +159,11 @@ class EffectController extends ChangeNotifier {
     ));
 
     animation.addListener(() {
+      if (_disposed) return;
       final value = animation.value;
       _animationValue = value;
       callback(value);
-      notifyListeners();
+      _safeNotifyListeners();
     });
 
     if (repeat) {
@@ -162,17 +176,18 @@ class EffectController extends ChangeNotifier {
       await _animationController!.forward();
     }
 
-    if (!repeat) {
+    if (!repeat && !_disposed) {
       _isAnimating = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
   /// Stops the current animation.
   void stopAnimation() {
+    if (_disposed) return;
     _animationController?.stop();
     _isAnimating = false;
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   /// Starts periodic updates for continuous effects.
@@ -183,15 +198,21 @@ class EffectController extends ChangeNotifier {
     int? frequency,
     required void Function(double time) callback,
   }) {
+    if (_disposed) return;
+    
     _updateFrequency = frequency ?? _updateFrequency;
     
     _updateTimer?.cancel();
     _updateTimer = Timer.periodic(
       Duration(milliseconds: _updateFrequency),
       (timer) {
+        if (_disposed) {
+          timer.cancel();
+          return;
+        }
         final time = DateTime.now().millisecondsSinceEpoch / 1000.0;
         callback(time);
-        notifyListeners();
+        _safeNotifyListeners();
       },
     );
   }
@@ -202,19 +223,12 @@ class EffectController extends ChangeNotifier {
     _updateTimer = null;
   }
 
-  /// Creates a ticker provider for animations.
-  /// 
-  /// This is a simple implementation that provides vsync callbacks.
-  /// In a real implementation, this would typically be provided by
-  /// a StatefulWidget or other object that implements TickerProvider.
-  TickerProvider _createTickerProvider() {
-    return _SimpleTickerProvider();
-  }
-
   /// Gets a map of current uniform values.
   /// 
   /// This is useful for passing to shader painters.
   Map<String, dynamic> getUniforms() {
+    if (_disposed) return {};
+    
     return {
       'u_animation': _animationValue,
       'u_touch': _touchPosition,
@@ -225,32 +239,28 @@ class EffectController extends ChangeNotifier {
     };
   }
 
+  /// Safely notifies listeners only if not disposed and has listeners.
+  void _safeNotifyListeners() {
+    if (!_disposed && hasListeners) {
+      super.notifyListeners();
+    }
+  }
+
   @override
   void dispose() {
+    if (_disposed) return;
+    
+    _disposed = true;
     _animationController?.dispose();
+    _animationController = null;
     _updateTimer?.cancel();
+    _updateTimer = null;
+    
     super.dispose();
   }
 
   @override
   void notifyListeners() {
-    super.notifyListeners();
-    
-    // Auto-dispose if no listeners and autoDispose is enabled
-    if (autoDispose && !hasListeners) {
-      dispose();
-    }
+    _safeNotifyListeners();
   }
 }
-
-/// Simple ticker provider for animations.
-/// 
-/// This is a basic implementation that provides vsync callbacks.
-/// In practice, you would typically use a StatefulWidget or other
-/// object that implements TickerProvider.
-class _SimpleTickerProvider extends TickerProvider {
-  @override
-  Ticker createTicker(TickerCallback onTick) {
-    return Ticker(onTick, debugLabel: 'EffectController');
-  }
-} 

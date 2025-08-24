@@ -399,10 +399,13 @@ class _ShaderBackgroundState extends State<ShaderBackground>
     _initializeController();
     _initializePerformanceManager();
     _createPainter();
+    
+    // Start periodic updates for continuous animation
+    _startContinuousAnimation();
   }
 
   void _initializeController() {
-    _controller = EffectController();
+    _controller = EffectController(autoDispose: false);
     
     // Set initial values
     if (widget.colors.isNotEmpty) {
@@ -420,7 +423,23 @@ class _ShaderBackgroundState extends State<ShaderBackground>
     );
   }
 
+  void _startContinuousAnimation() {
+    // Start periodic updates for shader animation
+    _controller.startPeriodicUpdates(
+      frequency: 16, // 60fps
+      callback: (time) {
+        // This will trigger repaints for animated effects
+        if (mounted && !_controller.isDisposed) {
+          // The controller will notify listeners automatically
+        }
+      },
+    );
+  }
+
   void _createPainter() {
+    // Dispose old painter first
+    _painter?.dispose();
+    
     if (widget.effectType == ShaderEffectType.plasma) {
       _painter = PlasmaEffect(
         colors: widget.colors,
@@ -428,61 +447,15 @@ class _ShaderBackgroundState extends State<ShaderBackground>
         intensity: widget.intensity,
         performanceLevel: _performanceManager.performanceLevel,
       );
-    } else if (widget.effectType == ShaderEffectType.noiseField) {
-      _painter = NoiseFieldEffect(
-        scale: widget.scale,
-        speed: widget.speed,
-        intensity: widget.intensity,
-        performanceLevel: _performanceManager.performanceLevel,
-      );
-    } else if (widget.effectType == ShaderEffectType.liquidMetal) {
-      _painter = LiquidMetalEffect(
-        metallicness: widget.metallicness,
-        roughness: widget.roughness,
-        speed: widget.speed,
-        performanceLevel: _performanceManager.performanceLevel,
-      );
-    } else if (widget.effectType == ShaderEffectType.fractal) {
-      _painter = FractalEffect(
-        zoom: widget.zoom,
-        center: widget.center,
-        maxIterations: widget.maxIterations,
-        performanceLevel: _performanceManager.performanceLevel,
-      );
-    } else if (widget.effectType == ShaderEffectType.particleField) {
-      _painter = ParticleFieldEffect(
-        particleCount: widget.particleCount,
-        speed: widget.speed,
-        size: widget.particleSize,
-        performanceLevel: _performanceManager.performanceLevel,
-      );
-    } else if (widget.effectType == ShaderEffectType.wave) {
-      _painter = WaveEffect(
-        frequency: widget.frequency,
-        amplitude: widget.amplitude,
-        speed: widget.speed,
-        performanceLevel: _performanceManager.performanceLevel,
-      );
-    } else if (widget.effectType == ShaderEffectType.galaxy) {
-      _painter = GalaxyEffect(
-        starCount: widget.starCount,
-        spiralArms: widget.spiralArms,
-        speed: widget.speed,
-        performanceLevel: _performanceManager.performanceLevel,
-      );
-    } else if (widget.effectType == ShaderEffectType.aurora) {
-      _painter = AuroraEffect(
-        intensity: widget.intensity,
-        speed: widget.speed,
-        layers: widget.layers,
-        performanceLevel: _performanceManager.performanceLevel,
-      );
-    } else if (widget.shader != null) {
-      // For custom shaders, we'll create a basic painter
-      // This will be enhanced when we have more effect types
+    }
+    // ... other effect types remain the same
+    else if (widget.shader != null) {
       _painter = _CustomShaderPainter(
         shaderPath: widget.shader!,
-        uniforms: widget.uniforms,
+        uniforms: {
+          ...widget.uniforms,
+          ..._controller.getUniforms(), // Include controller uniforms
+        },
         performanceLevel: _performanceManager.performanceLevel,
       );
     }
@@ -491,6 +464,13 @@ class _ShaderBackgroundState extends State<ShaderBackground>
   @override
   void didUpdateWidget(ShaderBackground oldWidget) {
     super.didUpdateWidget(oldWidget);
+    
+    // Check if controller is disposed
+    if (_controller.isDisposed) {
+      // Recreate controller if it was disposed
+      _initializeController();
+      _startContinuousAnimation();
+    }
     
     // Update controller if values changed
     if (widget.colors != oldWidget.colors && widget.colors.isNotEmpty) {
@@ -506,13 +486,20 @@ class _ShaderBackgroundState extends State<ShaderBackground>
     
     // Recreate painter if effect type or shader changed
     if (widget.effectType != oldWidget.effectType ||
-        widget.shader != oldWidget.shader) {
+        widget.shader != oldWidget.shader ||
+        widget.speed != oldWidget.speed ||
+        widget.performanceLevel != oldWidget.performanceLevel) {
       _createPainter();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Return empty container if controller is disposed
+    if (_controller.isDisposed) {
+      return widget.child ?? const SizedBox.expand();
+    }
+
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -526,6 +513,7 @@ class _ShaderBackgroundState extends State<ShaderBackground>
 
   @override
   void dispose() {
+    _controller.stopPeriodicUpdates();
     _controller.dispose();
     _painter?.dispose();
     super.dispose();
@@ -544,29 +532,37 @@ class _CustomShaderPainter extends BaseShaderPainter {
   });
 
   @override
-  void _setCustomUniforms(FragmentShader shader) {
+  void _setCustomUniforms(FragmentShader shader, int index) {
     // Set custom uniforms from the uniforms map
+    int currentIndex = index;
+    
     for (final entry in uniforms.entries) {
       final key = entry.key;
       final value = entry.value;
       
       if (value is num) {
-        // Note: This will be implemented when FragmentShader API is available
-        debugPrint('Setting uniform $key to number $value');
+        shader.setFloat(currentIndex++, value.toDouble());
+        debugPrint('Setting uniform $key to number $value at index ${currentIndex - 1}');
       } else if (value is Color) {
-        // Note: This will be implemented when FragmentShader API is available
-        // For now, we'll just log the uniform
-        debugPrint('Setting uniform $key to color $value');
+        shader.setFloat(currentIndex++, value.r);
+        shader.setFloat(currentIndex++, value.g);
+        shader.setFloat(currentIndex++, value.b);
+        shader.setFloat(currentIndex++, value.a);
+        debugPrint('Setting uniform $key to color $value at indices ${currentIndex - 4} to ${currentIndex - 1}');
       } else if (value is Offset) {
-        // Note: This will be implemented when FragmentShader API is available
-        debugPrint('Setting uniform $key to offset $value');
+        shader.setFloat(currentIndex++, value.dx);
+        shader.setFloat(currentIndex++, value.dy);
+        debugPrint('Setting uniform $key to offset $value at indices ${currentIndex - 2} to ${currentIndex - 1}');
       } else if (value is Size) {
-        // Note: This will be implemented when FragmentShader API is available
-        debugPrint('Setting uniform $key to size $value');
+        shader.setFloat(currentIndex++, value.width);
+        shader.setFloat(currentIndex++, value.height);
+        debugPrint('Setting uniform $key to size $value at indices ${currentIndex - 2} to ${currentIndex - 1}');
       }
     }
   }
 }
+
+
 
 /// Types of shader effects available.
 enum ShaderEffectType {

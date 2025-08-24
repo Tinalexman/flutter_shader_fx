@@ -33,7 +33,7 @@
 /// - **Interactive Effects**: Ripple, Magnetic, Glow Pulse, Dissolve, etc.
 /// - **Loading Effects**: Liquid Progress, Geometric Morph, Spiral Galaxy, etc.
 /// - **Decorative Effects**: Glass Morph, Neon Glow, Depth Shadow, Bokeh, etc.
-library flutter_shader_fx;
+library;
 
 // Core exports
 export 'src/core/base_shader_painter.dart';

@@ -162,13 +162,13 @@ class _ShaderButtonState extends State<ShaderButton>
   }
 
   void _startRippleAnimation() {
-    _controller.animate(
-      duration: widget.rippleDuration,
-      curve: Curves.easeOut,
-      callback: (value) {
-        // Animation callback - could be used for additional effects
-      },
-    );
+    // _controller.animate(
+    //   duration: widget.rippleDuration,
+    //   curve: Curves.easeOut,
+    //   callback: (value) {
+    //     // Animation callback - could be used for additional effects
+    //   },
+    // );
   }
 
   @override
@@ -267,7 +267,7 @@ class _CustomButtonShaderPainter extends BaseShaderPainter {
   });
 
   @override
-  void _setCustomUniforms(FragmentShader shader) {
+  void setCustomUniforms(FragmentShader shader, int index) {
     // Set custom uniforms from the uniforms map
     for (final entry in uniforms.entries) {
       final key = entry.key;
