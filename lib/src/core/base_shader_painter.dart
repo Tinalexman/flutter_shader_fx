@@ -38,6 +38,9 @@ abstract class BaseShaderPainter extends CustomPainter {
   /// The compiled fragment shader.
   FragmentShader? _fragmentShader;
 
+  /// The start time of the shader effect.
+  final DateTime _startTime = DateTime.now();
+
   /// Whether the shader has been loaded and compiled.
   bool get isShaderLoaded => _fragmentShader != null;
 
@@ -75,10 +78,10 @@ abstract class BaseShaderPainter extends CustomPainter {
     // Set standard uniforms
     shader.setFloat(floatIndex++, size.width);
     shader.setFloat(floatIndex++, size.height);
-    shader.setFloat(
-      floatIndex++,
-      DateTime.now().millisecondsSinceEpoch / 1000.0,
-    );
+
+    DateTime currentTime = DateTime.now();
+    double elapsed = currentTime.difference(_startTime).inMilliseconds / 1000.0;
+    shader.setFloat(floatIndex++, elapsed);
 
     // Set touch position (normalized coordinates)
     final touchPos = getTouchPosition();
@@ -121,9 +124,7 @@ abstract class BaseShaderPainter extends CustomPainter {
   ///
   /// Override this method to set any additional uniforms beyond the standard ones.
   /// [startIndex] is the next available float uniform index.
-  void setCustomUniforms(FragmentShader shader, int startIndex) {
-    
-  }
+  void setCustomUniforms(FragmentShader shader, int startIndex) {}
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -161,11 +162,7 @@ abstract class BaseShaderPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant BaseShaderPainter oldDelegate) {
-    return shaderPath != oldDelegate.shaderPath ||
-        uniforms != oldDelegate.uniforms ||
-        performanceLevel != oldDelegate.performanceLevel;
-  }
+  bool shouldRepaint(covariant BaseShaderPainter oldDelegate) => true;
 
   /// Disposes of shader resources.
   void dispose() {

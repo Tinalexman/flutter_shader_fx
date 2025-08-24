@@ -1,3 +1,4 @@
+import 'dart:developer' as d;
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -64,19 +65,19 @@ class PlasmaEffect extends BaseShaderPainter {
   @override
   void setCustomUniforms(FragmentShader shader, int startIndex) {
     // Set speed uniform
-    shader.setFloat(startIndex, speed);
+    // shader.setFloat(startIndex, speed);
     
     // Add additional colors if more than 2
-    if (colors.length > 2) {
-      int colorIndex = startIndex + 1;
-      for (int i = 2; i < colors.length && i < 6; i++) {
-        final color = colors[i];
-        shader.setFloat(colorIndex++, color.r);
-        shader.setFloat(colorIndex++, color.g);
-        shader.setFloat(colorIndex++, color.b);
-        shader.setFloat(colorIndex++, color.a);
-      }
-    }
+    // if (colors.length > 2) {
+    //   int colorIndex = startIndex + 1;
+    //   for (int i = 2; i < colors.length && i < 6; i++) {
+    //     final color = colors[i];
+    //     shader.setFloat(colorIndex++, color.r);
+    //     shader.setFloat(colorIndex++, color.g);
+    //     shader.setFloat(colorIndex++, color.b);
+    //     shader.setFloat(colorIndex++, color.a);
+    //   }
+    // }
   }
 
   @override
@@ -177,11 +178,5 @@ class PlasmaEffect extends BaseShaderPainter {
   }
 
   @override
-  bool shouldRepaint(covariant PlasmaEffect oldDelegate) {
-    return colors != oldDelegate.colors ||
-           speed != oldDelegate.speed ||
-           intensity != oldDelegate.intensity ||
-           touchPosition != oldDelegate.touchPosition ||
-           super.shouldRepaint(oldDelegate);
-  }
+  bool shouldRepaint(covariant PlasmaEffect oldDelegate) => true;
 }

@@ -1,36 +1,32 @@
+import 'dart:developer';
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
+
 import '../core/base_shader_painter.dart';
 import '../core/effect_controller.dart';
 import '../core/performance_manager.dart';
 import '../effects/background/plasma_effect.dart';
-import '../effects/background/noise_field_effect.dart';
-import '../effects/background/liquid_metal_effect.dart';
-import '../effects/background/fractal_effect.dart';
-import '../effects/background/particle_field_effect.dart';
-import '../effects/background/wave_effect.dart';
-import '../effects/background/galaxy_effect.dart';
-import '../effects/background/aurora_effect.dart';
 
 /// A widget that displays shader effects as a background.
-/// 
+///
 /// This widget provides easy-to-use background effects with a simple API.
 /// It automatically handles performance optimization and provides graceful
 /// fallbacks when shaders fail to load.
-/// 
+///
 /// ## Usage
-/// 
+///
 /// ```dart
 /// // Simple plasma background
 /// ShaderBackground.plasma()
-/// 
+///
 /// // Customized plasma background
 /// ShaderBackground.plasma(
 ///   colors: [Colors.purple, Colors.cyan],
 ///   speed: 1.5,
 ///   intensity: 0.8,
 /// )
-/// 
+///
 /// // Custom shader background
 /// ShaderBackground.custom(
 ///   shader: 'my_effect.frag',
@@ -43,7 +39,7 @@ import '../effects/background/aurora_effect.dart';
 /// ```
 class ShaderBackground extends StatefulWidget {
   /// Creates a shader background with a custom shader.
-  /// 
+  ///
   /// [shader] should be the path to the GLSL fragment shader file.
   /// [uniforms] are the uniform values to pass to the shader.
   /// [child] is the widget to display on top of the background.
@@ -73,7 +69,7 @@ class ShaderBackground extends StatefulWidget {
        layers = 3;
 
   /// Creates a plasma background effect.
-  /// 
+  ///
   /// [colors] are the colors to use for the plasma effect.
   /// [speed] controls the animation speed (0.0 to 2.0).
   /// [intensity] controls the effect intensity (0.0 to 1.0).
@@ -104,7 +100,7 @@ class ShaderBackground extends StatefulWidget {
        layers = 3;
 
   /// Creates a noise field background effect.
-  /// 
+  ///
   /// [scale] controls the scale of the noise pattern (higher = smaller details).
   /// [speed] controls the animation speed (0.0 to 2.0).
   /// [intensity] controls the effect intensity (0.0 to 1.0).
@@ -135,7 +131,7 @@ class ShaderBackground extends StatefulWidget {
        layers = 3;
 
   /// Creates a liquid metal background effect.
-  /// 
+  ///
   /// [metallicness] controls the metallic appearance (0.0 to 1.0).
   /// [roughness] controls the surface roughness (0.0 to 1.0).
   /// [speed] controls the animation speed (0.0 to 2.0).
@@ -166,7 +162,7 @@ class ShaderBackground extends StatefulWidget {
        layers = 3;
 
   /// Creates a fractal background effect.
-  /// 
+  ///
   /// [zoom] controls the zoom level (higher = more zoomed in).
   /// [center] is the center point of the fractal (normalized coordinates).
   /// [maxIterations] is the maximum number of iterations for fractal calculation.
@@ -197,7 +193,7 @@ class ShaderBackground extends StatefulWidget {
        layers = 3;
 
   /// Creates a particle field background effect.
-  /// 
+  ///
   /// [particleCount] is the number of particles to display.
   /// [speed] controls the animation speed (0.0 to 2.0).
   /// [size] controls the size of particles (0.5 to 5.0).
@@ -228,7 +224,7 @@ class ShaderBackground extends StatefulWidget {
        layers = 3;
 
   /// Creates a wave background effect.
-  /// 
+  ///
   /// [frequency] controls the wave frequency (0.5 to 5.0).
   /// [amplitude] controls the wave amplitude (0.1 to 1.0).
   /// [speed] controls the animation speed (0.0 to 2.0).
@@ -259,7 +255,7 @@ class ShaderBackground extends StatefulWidget {
        layers = 3;
 
   /// Creates a galaxy background effect.
-  /// 
+  ///
   /// [starCount] is the number of stars to display.
   /// [spiralArms] is the number of spiral arms (2 to 6).
   /// [speed] controls the animation speed (0.0 to 2.0).
@@ -290,7 +286,7 @@ class ShaderBackground extends StatefulWidget {
        layers = 3;
 
   /// Creates an aurora background effect.
-  /// 
+  ///
   /// [intensity] controls the aurora intensity (0.0 to 1.0).
   /// [speed] controls the animation speed (0.0 to 2.0).
   /// [layers] is the number of aurora layers (1 to 5).
@@ -392,6 +388,7 @@ class _ShaderBackgroundState extends State<ShaderBackground>
   late EffectController _controller;
   late PerformanceManager _performanceManager;
   BaseShaderPainter? _painter;
+  int _repaintKey = 0; // Key to force repaints
 
   @override
   void initState() {
@@ -399,14 +396,32 @@ class _ShaderBackgroundState extends State<ShaderBackground>
     _initializeController();
     _initializePerformanceManager();
     _createPainter();
-    
+
     // Start periodic updates for continuous animation
     _startContinuousAnimation();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadShaderAsync();
+    });
+  }
+
+  Future<void> _loadShaderAsync() async {
+    if (_painter != null) {
+      await _painter!.loadShader();
+      if (mounted) {
+        setState(() => _repaintKey++);
+      }
+    }
   }
 
   void _initializeController() {
     _controller = EffectController(autoDispose: false);
-    
+    _controller.addListener(() {
+      if (mounted) {
+        setState(() => _repaintKey++);
+      }
+    });
+
     // Set initial values
     if (widget.colors.isNotEmpty) {
       _controller.setColor1(widget.colors.first);
@@ -424,7 +439,7 @@ class _ShaderBackgroundState extends State<ShaderBackground>
   }
 
   void _startContinuousAnimation() {
-    // Start periodic updates for shader animation
+    // // Start periodic updates for shader animation
     _controller.startPeriodicUpdates(
       frequency: 16, // 60fps
       callback: (time) {
@@ -439,7 +454,7 @@ class _ShaderBackgroundState extends State<ShaderBackground>
   void _createPainter() {
     // Dispose old painter first
     _painter?.dispose();
-    
+
     if (widget.effectType == ShaderEffectType.plasma) {
       _painter = PlasmaEffect(
         colors: widget.colors,
@@ -464,14 +479,14 @@ class _ShaderBackgroundState extends State<ShaderBackground>
   @override
   void didUpdateWidget(ShaderBackground oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     // Check if controller is disposed
     if (_controller.isDisposed) {
       // Recreate controller if it was disposed
       _initializeController();
       _startContinuousAnimation();
     }
-    
+
     // Update controller if values changed
     if (widget.colors != oldWidget.colors && widget.colors.isNotEmpty) {
       _controller.setColor1(widget.colors.first);
@@ -479,17 +494,18 @@ class _ShaderBackgroundState extends State<ShaderBackground>
         _controller.setColor2(widget.colors[1]);
       }
     }
-    
+
     if (widget.intensity != oldWidget.intensity) {
       _controller.setIntensity(widget.intensity);
     }
-    
+
     // Recreate painter if effect type or shader changed
     if (widget.effectType != oldWidget.effectType ||
         widget.shader != oldWidget.shader ||
         widget.speed != oldWidget.speed ||
         widget.performanceLevel != oldWidget.performanceLevel) {
       _createPainter();
+      _loadShaderAsync();
     }
   }
 
@@ -505,6 +521,7 @@ class _ShaderBackgroundState extends State<ShaderBackground>
       builder: (context, child) {
         return CustomPaint(
           painter: _painter,
+          key: ValueKey<int>(_repaintKey),
           child: widget.child ?? const SizedBox.expand(),
         );
       },
@@ -513,6 +530,7 @@ class _ShaderBackgroundState extends State<ShaderBackground>
 
   @override
   void dispose() {
+    _controller.removeListener(() {});
     _controller.stopPeriodicUpdates();
     _controller.dispose();
     _painter?.dispose();
@@ -521,7 +539,7 @@ class _ShaderBackgroundState extends State<ShaderBackground>
 }
 
 /// Custom shader painter for user-provided shaders.
-/// 
+///
 /// This is a basic implementation that will be enhanced as the package
 /// develops more sophisticated shader handling capabilities.
 class _CustomShaderPainter extends BaseShaderPainter {
@@ -532,61 +550,67 @@ class _CustomShaderPainter extends BaseShaderPainter {
   });
 
   @override
-  void _setCustomUniforms(FragmentShader shader, int index) {
+  void setCustomUniforms(FragmentShader shader, int index) {
     // Set custom uniforms from the uniforms map
     int currentIndex = index;
-    
+
     for (final entry in uniforms.entries) {
       final key = entry.key;
       final value = entry.value;
-      
+
       if (value is num) {
         shader.setFloat(currentIndex++, value.toDouble());
-        debugPrint('Setting uniform $key to number $value at index ${currentIndex - 1}');
+        debugPrint(
+          'Setting uniform $key to number $value at index ${currentIndex - 1}',
+        );
       } else if (value is Color) {
         shader.setFloat(currentIndex++, value.r);
         shader.setFloat(currentIndex++, value.g);
         shader.setFloat(currentIndex++, value.b);
         shader.setFloat(currentIndex++, value.a);
-        debugPrint('Setting uniform $key to color $value at indices ${currentIndex - 4} to ${currentIndex - 1}');
+        debugPrint(
+          'Setting uniform $key to color $value at indices ${currentIndex - 4} to ${currentIndex - 1}',
+        );
       } else if (value is Offset) {
         shader.setFloat(currentIndex++, value.dx);
         shader.setFloat(currentIndex++, value.dy);
-        debugPrint('Setting uniform $key to offset $value at indices ${currentIndex - 2} to ${currentIndex - 1}');
+        debugPrint(
+          'Setting uniform $key to offset $value at indices ${currentIndex - 2} to ${currentIndex - 1}',
+        );
       } else if (value is Size) {
         shader.setFloat(currentIndex++, value.width);
         shader.setFloat(currentIndex++, value.height);
-        debugPrint('Setting uniform $key to size $value at indices ${currentIndex - 2} to ${currentIndex - 1}');
+        debugPrint(
+          'Setting uniform $key to size $value at indices ${currentIndex - 2} to ${currentIndex - 1}',
+        );
       }
     }
   }
 }
 
-
-
 /// Types of shader effects available.
 enum ShaderEffectType {
   /// Plasma effect with flowing colors.
   plasma,
-  
+
   /// Noise field effect with Perlin noise patterns.
   noiseField,
-  
+
   /// Liquid metal effect with reflective surface.
   liquidMetal,
-  
+
   /// Fractal effect with Mandelbrot/Julia variations.
   fractal,
-  
+
   /// Particle field effect with floating particles.
   particleField,
-  
+
   /// Wave effect with sine wave interference.
   wave,
-  
+
   /// Galaxy effect with spiral galaxy and stars.
   galaxy,
-  
+
   /// Aurora effect with northern lights.
   aurora,
-} 
+}
