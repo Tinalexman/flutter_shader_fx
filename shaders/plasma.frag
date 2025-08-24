@@ -14,193 +14,225 @@ out vec4 fragColor;
 // Constants
 const float PI = 3.14159265359;
 const float TWO_PI = 6.28318530718;
-const int OCTAVES = 4;
+const int OCTAVES = 2;
 
-// Enhanced hash function for better noise distribution
-vec3 hash3(vec2 p) {
-    vec3 q = vec3(
-    dot(p, vec2(127.1, 311.7)),
-    dot(p, vec2(269.5, 183.3)),
-    dot(p, vec2(419.2, 371.9))
-    );
-    return fract(sin(q) * 43758.5453123);
-}
-
+// Enhanced hash function
 float hash(vec2 p) {
     return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
 }
 
-// Improved noise function with smoother interpolation
+// Smooth noise function
 float noise(vec2 p) {
     vec2 i = floor(p);
     vec2 f = fract(p);
 
-    // Four corner values
     float a = hash(i);
     float b = hash(i + vec2(1.0, 0.0));
     float c = hash(i + vec2(0.0, 1.0));
     float d = hash(i + vec2(1.0, 1.0));
 
-    // Smooth interpolation using quintic polynomial
-    vec2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
-
+    vec2 u = f * f * (3.0 - 2.0 * f);
     return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
-// Fractal Brownian Motion
-float fbm(vec2 p, float lacunarity, float gain) {
+// Fractal Brownian Motion with flowing movement
+float fbm(vec2 p, float time, vec2 flow) {
     float value = 0.0;
     float amplitude = 0.5;
     float frequency = 1.0;
 
+    // Add time-based flow to the position
+    p += flow * time;
+
     for (int i = 0; i < OCTAVES; i++) {
         value += amplitude * noise(p * frequency);
-        amplitude *= gain;
-        frequency *= lacunarity;
+        amplitude *= 0.5;
+        frequency *= 2.0;
+
+        // Rotate the coordinates for each octave to create swirling
+        p = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.5)) * p;
     }
 
     return value;
 }
 
-// Domain warping for more organic movement
-vec2 domainWarp(vec2 p, float time) {
-    float scale = 4.0;
-    vec2 q = vec2(
-    fbm(p + vec2(0.0, 0.0), 2.0, 0.5),
-    fbm(p + vec2(5.2, 1.3), 2.0, 0.5)
-    );
-
-    vec2 r = vec2(
-    fbm(p + scale * q + vec2(1.7, 9.2) + 0.15 * time, 2.0, 0.5),
-    fbm(p + scale * q + vec2(8.3, 2.8) + 0.126 * time, 2.0, 0.5)
-    );
-
-    return fbm(p + scale * r, 2.0, 0.5) * vec2(1.0);
-}
-
-// Multi-layer plasma function
-float plasma(vec2 uv, float time) {
-    vec2 p = uv * 6.0;
+// Flowing plasma function with multiple scrolling patterns
+float flowingPlasma(vec2 uv, float time) {
     float speed = u_speed;
+    vec2 p = uv * 4.0;
 
-    // Apply domain warping for organic movement
-    vec2 warped = p + domainWarp(p * 0.5, time * speed * 0.5);
+    // Multiple flow directions for complex patterns
+    vec2 flow1 = vec2(1.0, 0.5) * speed;
+    vec2 flow2 = vec2(-0.7, 1.2) * speed;
+    vec2 flow3 = vec2(0.3, -0.8) * speed;
 
-    // Multiple plasma layers with different frequencies and phases
-    float layer1 = sin(warped.x + time * speed * 1.7) * cos(warped.y - time * speed * 1.3);
-    float layer2 = sin(warped.x * 1.5 - time * speed * 1.1) * sin(warped.y * 1.2 + time * speed * 0.9);
-    float layer3 = cos(length(warped) * 2.0 - time * speed * 2.0) * 0.7;
+    // Layer 1: Main flowing noise
+    float layer1 = fbm(p, time, flow1);
 
-    // Fractal noise component
-    float noiseComponent = fbm(warped * 0.8 + time * speed * 0.3, 2.0, 0.5);
+    // Layer 2: Counter-rotating flow
+    float layer2 = fbm(p * 1.3, time * 0.8, flow2);
 
-    // Combine layers with different weights
-    float plasma = (layer1 + layer2 * 0.8 + layer3 * 0.6 + noiseComponent * 1.2) / 3.6;
+    // Layer 3: Fast turbulent flow
+    float layer3 = fbm(p * 2.1, time * 1.5, flow3);
 
-    // Add radial component for more interesting patterns
+    // Layer 4: Scrolling sine waves
+    float wave1 = sin(p.x * 3.0 + time * speed * 2.0) * cos(p.y * 2.0 - time * speed * 1.5);
+    float wave2 = sin(p.y * 3.5 - time * speed * 1.8) * cos(p.x * 2.5 + time * speed * 1.2);
+
+    // Layer 5: Diagonal scrolling pattern
+    float diagonal = sin((p.x + p.y) * 4.0 - time * speed * 3.0) *
+    cos((p.x - p.y) * 3.0 + time * speed * 2.5);
+
+    // Layer 6: Circular flowing pattern
     vec2 center = vec2(0.5);
-    float radial = distance(uv, center);
-    plasma += sin(radial * 12.0 - time * speed * 3.0) * 0.3;
+    vec2 toCenter = uv - center;
+    float angle = atan(toCenter.y, toCenter.x);
+    float radius = length(toCenter);
+    float circular = sin(angle * 6.0 + radius * 10.0 - time * speed * 4.0) *
+    cos(radius * 8.0 - time * speed * 2.0);
 
-    // Add spiral component
-    float angle = atan(uv.y - center.y, uv.x - center.x);
-    plasma += sin(angle * 3.0 + radial * 8.0 - time * speed * 2.5) * 0.2;
+    // Combine all layers with different weights
+    float plasma = layer1 * 0.4 +
+    layer2 * 0.3 +
+    layer3 * 0.2 +
+    wave1 * 0.25 +
+    wave2 * 0.2 +
+    diagonal * 0.15 +
+    circular * 0.3;
 
     return plasma;
 }
 
-// Enhanced color palette with multiple color support
-vec3 palette(float t, vec3 color1, vec3 color2) {
-    // Normalize t to smooth range
-    t = t * 0.5 + 0.5;
-    t = fract(t);
+// Advanced domain warping for fluid motion
+vec2 advancedWarp(vec2 p, float time) {
+    float speed = u_speed;
 
-    // Create complex color mapping using cosine palette
+    // Primary warp
+    vec2 q = vec2(
+    fbm(p, time * 0.3, vec2(1.0, 0.0) * speed),
+    fbm(p + vec2(1.0), time * 0.3, vec2(0.0, 1.0) * speed)
+    );
+
+    // Secondary warp
+    vec2 r = vec2(
+    fbm(p + 4.0 * q + vec2(1.7, 9.2), time * 0.5, vec2(0.5, 1.0) * speed),
+    fbm(p + 4.0 * q + vec2(8.3, 2.8), time * 0.5, vec2(1.0, 0.5) * speed)
+    );
+
+    return fbm(p + 4.0 * r, time * 0.2, vec2(0.3, 0.7) * speed) * vec2(1.0);
+}
+
+// Multi-directional flowing plasma
+float multiFlowPlasma(vec2 uv, float time) {
+    vec2 p = uv * 6.0;
+    float speed = u_speed;
+
+    // Apply advanced domain warping
+    vec2 warped = p + advancedWarp(p * 0.5, time) * 2.0;
+
+    // Horizontal flow (like lava flow)
+    float horizontal = sin(warped.y * 2.0 + time * speed * 2.0) *
+    cos(warped.x * 1.5 - time * speed * 0.5);
+
+    // Vertical flow (like rising plasma)
+    float vertical = sin(warped.x * 2.5 - time * speed * 1.5) *
+    cos(warped.y * 2.0 + time * speed * 1.8);
+
+    // Spiral flow
+    vec2 center = vec2(3.0); // Center in warped space
+    vec2 toCenter = warped - center;
+    float angle = atan(toCenter.y, toCenter.x);
+    float radius = length(toCenter);
+    float spiral = sin(angle * 4.0 + radius * 2.0 - time * speed * 3.0) *
+    cos(radius * 1.5 + time * speed * 1.0);
+
+    // Turbulent flow
+    float turbulent = fbm(warped + vec2(time * speed * 0.8, time * speed * 0.6),
+                          time, vec2(1.0, 0.5) * speed);
+
+    // Combine flows
+    return (horizontal + vertical + spiral + turbulent * 2.0) / 5.0;
+}
+
+// Dynamic color palette that shifts over time
+vec3 flowingPalette(float t, vec3 color1, vec3 color2, float time) {
+    // Normalize and animate t
+    t = t * 0.5 + 0.5;
+    t = fract(t + time * 0.1);
+
+    // Create shifting color palette
     vec3 a = color1;
     vec3 b = color2 - color1;
     vec3 c = vec3(1.0, 0.5, 0.5);
-    vec3 d = vec3(0.0, 0.2, 0.5);
+    vec3 d = vec3(0.0, 0.2, 0.5) + sin(time * 0.5) * 0.1;
 
     vec3 color = a + b * cos(TWO_PI * (c * t + d));
 
-    // Add additional color variation for more vibrant plasma
+    // Add flowing color variations
     color += vec3(
-    sin(t * PI * 4.0) * 0.1,
-    cos(t * PI * 3.0) * 0.1,
-    sin(t * PI * 5.0) * 0.1
+    sin(t * PI * 6.0 + time) * 0.1,
+    cos(t * PI * 4.0 + time * 1.2) * 0.1,
+    sin(t * PI * 5.0 + time * 0.8) * 0.1
     );
-
-    // Add some complementary colors for richer palette
-    vec3 complement = vec3(1.0) - color1;
-    color = mix(color, complement, sin(t * PI * 2.0) * 0.1 + 0.1);
 
     return color;
 }
 
-// Vignette effect for better visual focus
-float vignette(vec2 uv, float strength) {
-    vec2 center = vec2(0.5);
-    float dist = distance(uv, center);
-    return 1.0 - smoothstep(0.3, 1.0, dist * strength);
-}
-
-// Enhanced glow effect
-float glow(float value, float intensity) {
-    return pow(abs(sin(value * PI)), intensity);
-}
-
-// Touch interaction effect
-float touchEffect(vec2 uv, vec2 touchPos, float time) {
+// Touch ripple effect that flows with the plasma
+float flowingTouchEffect(vec2 uv, vec2 touchPos, float time) {
     float dist = distance(uv, touchPos);
-    float ripple = sin(dist * 15.0 - time * 8.0) * exp(-dist * 3.0);
-    return ripple * 0.3;
+
+    // Multiple ripple frequencies for complex interaction
+    float ripple1 = sin(dist * 20.0 - time * 8.0) * exp(-dist * 2.0);
+    float ripple2 = sin(dist * 15.0 - time * 6.0) * exp(-dist * 1.5);
+    float ripple3 = sin(dist * 10.0 - time * 10.0) * exp(-dist * 3.0);
+
+    // Flow the ripples in different directions
+    vec2 flow = vec2(sin(time * 2.0), cos(time * 1.5)) * 0.1;
+    vec2 flowedUV = uv + flow;
+    float flowDist = distance(flowedUV, touchPos);
+    float flowRipple = sin(flowDist * 12.0 - time * 7.0) * exp(-flowDist * 2.5);
+
+    return (ripple1 + ripple2 + ripple3 + flowRipple) * 0.2;
 }
 
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
     float time = u_time;
 
-    // Calculate main plasma value
-    float plasmaValue = plasma(uv, time);
+    // Calculate main flowing plasma
+    float plasma1 = flowingPlasma(uv, time);
+    float plasma2 = multiFlowPlasma(uv, time * 0.7);
 
-    // Add touch interaction
-    plasmaValue += touchEffect(uv, u_touch, time * u_speed);
+    // Combine plasma layers
+    float finalPlasma = (plasma1 + plasma2 * 0.8) / 1.8;
+
+    // Add flowing touch interaction
+    finalPlasma += flowingTouchEffect(uv, u_touch, time * u_speed);
 
     // Apply intensity
-    plasmaValue *= u_intensity;
+    finalPlasma *= u_intensity;
 
-    // Create color from plasma value
-    vec3 color = palette(plasmaValue, u_color1.rgb, u_color2.rgb);
+    // Create flowing color
+    vec3 color = flowingPalette(finalPlasma, u_color1.rgb, u_color2.rgb, time);
 
-    // Add enhanced glow effect
-    float glowAmount = glow(plasmaValue, 2.0);
-    color += vec3(glowAmount * 0.3);
+    // Add dynamic glow that flows
+    float dynamicGlow = sin(finalPlasma * PI * 2.0 + time) * 0.3 + 0.7;
+    color *= dynamicGlow;
 
-    // Apply vignette for better visual focus
-    float vignetteAmount = vignette(uv, 0.8);
-    color *= vignetteAmount * 0.8 + 0.2;
+    // Subtle vignette
+    vec2 center = vec2(0.5);
+    float dist = distance(uv, center);
+    float vignette = 1.0 - smoothstep(0.4, 1.2, dist);
+    color *= vignette * 0.7 + 0.3;
 
-    // Add subtle chromatic aberration for more realistic plasma look
-    vec2 aberration = (uv - 0.5) * 0.02 * sin(time * 2.0);
-    float r = palette(plasmaValue + aberration.x, u_color1.rgb, u_color2.rgb).r;
-    float g = color.g;
-    float b = palette(plasmaValue - aberration.x, u_color1.rgb, u_color2.rgb).b;
-    color = vec3(r, g, b);
+    // Add flowing highlights
+    float highlight = sin(finalPlasma * 8.0 + time * 2.0) * 0.1 + 0.9;
+    color *= highlight;
 
-    // Add some energy spikes for more dynamic plasma
-    float energy = sin(time * 3.0) * 0.1 + 0.9;
-    color *= energy;
-
-    // Ensure color is in valid range
+    // Ensure valid range
     color = clamp(color, 0.0, 1.0);
 
-    // Apply gamma correction for better visual appearance
-    color = pow(color, vec3(1.0 / 2.2));
-
-    // Add subtle film grain for texture
-    float grain = hash(uv + time) * 0.05;
-    color += vec3(grain);
-
-    // Output final color
+    // Output final flowing color
     fragColor = vec4(color, u_color1.a);
 }

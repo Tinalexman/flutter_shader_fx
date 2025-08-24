@@ -441,7 +441,7 @@ class _ShaderBackgroundState extends State<ShaderBackground>
   void _startContinuousAnimation() {
     // // Start periodic updates for shader animation
     _controller.startPeriodicUpdates(
-      frequency: 16, // 60fps
+      frequency: (100 / _getTargetFPS()).toInt(),
       callback: (time) {
         // This will trigger repaints for animated effects
         if (mounted && !_controller.isDisposed) {
@@ -506,6 +506,17 @@ class _ShaderBackgroundState extends State<ShaderBackground>
         widget.performanceLevel != oldWidget.performanceLevel) {
       _createPainter();
       _loadShaderAsync();
+    }
+  }
+
+  int _getTargetFPS() {
+    switch (_performanceManager.performanceLevel) {
+      case PerformanceLevel.low:
+        return 24; // Very low FPS for budget devices
+      case PerformanceLevel.medium:
+        return 30; // Medium FPS for mid-range devices
+      case PerformanceLevel.high:
+        return 60; // Full FPS for high-end devices
     }
   }
 
