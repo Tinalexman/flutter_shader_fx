@@ -45,6 +45,7 @@ export 'src/core/shader_loader.dart';
 export 'src/widgets/shader_background.dart';
 export 'src/widgets/shader_button.dart';
 export 'src/widgets/shader_container.dart';
+export 'src/widgets/shader_interactive.dart';
 export 'src/widgets/shader_text.dart';
 
 // Effect exports

@@ -13,7 +13,7 @@ class _NoiseFieldBackgroundState extends State<NoiseFieldBackground> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: ShaderBackground.noiseField(
-        // scale: 0.5,
+        scale: 10,
         speed: 1.2,
         intensity: 1.0,
         child: Center(

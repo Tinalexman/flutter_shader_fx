@@ -65,20 +65,26 @@ class PlasmaEffect extends BaseShaderPainter {
 
   @override
   void setCustomUniforms(FragmentShader shader, int startIndex) {
-    // Set speed uniform
-    shader.setFloat(startIndex, speed);
+    int floatIndex = startIndex;
 
-    // Add additional colors if more than 2
-    if (colors.length > 2) {
-      int colorIndex = startIndex + 1;
-      for (int i = 2; i < colors.length && i < 6; i++) {
-        final color = colors[i];
-        shader.setFloat(colorIndex++, color.r);
-        shader.setFloat(colorIndex++, color.g);
-        shader.setFloat(colorIndex++, color.b);
-        shader.setFloat(colorIndex++, color.a);
-      }
-    }
+    // Set touch position (normalized coordinates)
+    final touchPos = getTouchPosition();
+    shader.setFloat(floatIndex++, touchPos.dx);
+    shader.setFloat(floatIndex++, touchPos.dy);
+
+    // Set colors (default to purple and cyan)
+    final color1 = uniforms['u_color1'] as Color? ?? const Color(0xFF9C27B0);
+    final color2 = uniforms['u_color2'] as Color? ?? const Color(0xFF00BCD4);
+
+    shader.setFloat(floatIndex++, color1.r);
+    shader.setFloat(floatIndex++, color1.g);
+    shader.setFloat(floatIndex++, color1.b);
+    shader.setFloat(floatIndex++, color1.a);
+
+    shader.setFloat(floatIndex++, color2.r);
+    shader.setFloat(floatIndex++, color2.g);
+    shader.setFloat(floatIndex++, color2.b);
+    shader.setFloat(floatIndex++, color2.a);
   }
 
   @override

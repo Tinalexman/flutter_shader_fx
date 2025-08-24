@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_shader_fx/flutter_shader_fx.dart';
 
 import '../core/base_shader_painter.dart';
 import '../core/effect_controller.dart';
@@ -461,6 +462,13 @@ class _ShaderBackgroundState extends State<ShaderBackground>
         speed: widget.speed,
         intensity: widget.intensity,
         performanceLevel: _performanceManager.performanceLevel,
+      );
+    } else if(widget.effectType == ShaderEffectType.noiseField) {
+      _painter = NoiseFieldEffect(
+        intensity: widget.intensity,
+        performanceLevel: _performanceManager.performanceLevel,
+        scale: widget.scale,
+        speed: widget.speed,
       );
     }
     // ... other effect types remain the same

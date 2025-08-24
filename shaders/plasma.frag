@@ -3,11 +3,12 @@ precision highp float;
 
 uniform vec2 u_resolution;
 uniform float u_time;
-uniform vec2 u_touch;
+uniform float u_speed;
 uniform float u_intensity;
+
+uniform vec2 u_touch;
 uniform vec4 u_color1;
 uniform vec4 u_color2;
-uniform float u_speed;
 
 out vec4 fragColor;
 

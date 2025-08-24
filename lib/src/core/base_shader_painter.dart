@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
@@ -60,7 +61,7 @@ abstract class BaseShaderPainter extends CustomPainter {
       _fragmentShader = program.fragmentShader();
     } catch (e) {
       // Log error but don't crash - fall back to solid color
-      debugPrint('Failed to compile shader $shaderPath: $e');
+      log('Failed to compile shader $shaderPath: $e');
       _fragmentShader = null;
     }
   }
@@ -83,30 +84,9 @@ abstract class BaseShaderPainter extends CustomPainter {
     double elapsed = currentTime.difference(_startTime).inMilliseconds / 1000.0;
     shader.setFloat(floatIndex++, elapsed);
 
-    // Set touch position (normalized coordinates)
-    final touchPos = getTouchPosition();
-    shader.setFloat(floatIndex++, touchPos.dx);
-    shader.setFloat(floatIndex++, touchPos.dy);
-
-    // Set intensity (default to 1.0)
-    shader.setFloat(
-      floatIndex++,
-      (uniforms['u_intensity'] as num?)?.toDouble() ?? 1.0,
-    );
-
-    // Set colors (default to purple and cyan)
-    final color1 = uniforms['u_color1'] as Color ?? const Color(0xFF9C27B0);
-    final color2 = uniforms['u_color2'] as Color? ?? const Color(0xFF00BCD4);
-
-    shader.setFloat(floatIndex++, color1.r);
-    shader.setFloat(floatIndex++, color1.g);
-    shader.setFloat(floatIndex++, color1.b);
-    shader.setFloat(floatIndex++, color1.a);
-
-    shader.setFloat(floatIndex++, color2.r);
-    shader.setFloat(floatIndex++, color2.g);
-    shader.setFloat(floatIndex++, color2.b);
-    shader.setFloat(floatIndex++, color2.a);
+    // Set the speed and intensity of the shader
+    shader.setFloat(floatIndex++, uniforms['u_speed'] ?? 1.0);
+    shader.setFloat(floatIndex++, uniforms['u_intensity'] ?? 1.0);
 
     // Set custom uniforms
     setCustomUniforms(shader, floatIndex);

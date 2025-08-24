@@ -14,24 +14,12 @@ class _GlowPulseInteractiveState extends State<GlowPulseInteractive> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Glow Pulse Interactive'),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.deepPurple, Colors.purple],
-          ),
-        ),
+      body: Center(
         child: GestureDetector(
           onTapDown: (_) => setState(() => _isActive = true),
           onTapUp: (_) => setState(() => _isActive = false),
           onTapCancel: () => setState(() => _isActive = false),
-          child: CustomPaint(
+          child: ShaderInteractive(
             painter: GlowPulseEffect(
               isActive: _isActive,
               glowColor: Colors.cyan,
@@ -54,4 +42,4 @@ class _GlowPulseInteractiveState extends State<GlowPulseInteractive> {
       ),
     );
   }
-} 
+}
