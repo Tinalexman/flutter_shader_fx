@@ -22,4 +22,5 @@ flutter:
 
   shaders:
     - shaders/plasma.frag
+    - shaders/noise_effect.frag
   

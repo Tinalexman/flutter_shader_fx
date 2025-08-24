@@ -35,6 +35,11 @@ class NoiseFieldEffect extends BaseShaderPainter {
   }) : super(
     shaderPath: 'noise_field.frag',
     performanceLevel: performanceLevel ?? PerformanceLevel.medium,
+    uniforms: {
+      'u_scale': scale,
+      'u_speed': speed,
+      'u_intensity': intensity,
+    },
   );
 
   /// Scale of the noise pattern (higher = smaller details).
@@ -48,8 +53,13 @@ class NoiseFieldEffect extends BaseShaderPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Since shader compilation is not yet available, we'll use a noise field fallback
-    _paintNoiseField(canvas, size);
+    if (isShaderLoaded) {
+      // Use shader if available
+      super.paint(canvas, size);
+    } else {
+      // Fallback to gradient implementation
+      _paintNoiseField(canvas, size);
+    }
   }
 
   /// Paints a noise field effect using mathematical noise functions.

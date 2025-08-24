@@ -95,7 +95,7 @@ abstract class BaseShaderPainter extends CustomPainter {
     );
 
     // Set colors (default to purple and cyan)
-    final color1 = uniforms['u_color1'] as Color? ?? const Color(0xFF9C27B0);
+    final color1 = uniforms['u_color1'] as Color ?? const Color(0xFF9C27B0);
     final color2 = uniforms['u_color2'] as Color? ?? const Color(0xFF00BCD4);
 
     shader.setFloat(floatIndex++, color1.r);

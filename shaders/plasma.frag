@@ -14,7 +14,7 @@ out vec4 fragColor;
 // Constants
 const float PI = 3.14159265359;
 const float TWO_PI = 6.28318530718;
-const int OCTAVES = 2;
+const int OCTAVES = 1;
 
 // Enhanced hash function
 float hash(vec2 p) {
@@ -154,28 +154,26 @@ float multiFlowPlasma(vec2 uv, float time) {
     return (horizontal + vertical + spiral + turbulent * 2.0) / 5.0;
 }
 
-// Dynamic color palette that shifts over time
+
 vec3 flowingPalette(float t, vec3 color1, vec3 color2, float time) {
-    // Normalize and animate t
+    // Normalize t to 0-1 range
     t = t * 0.5 + 0.5;
-    t = fract(t + time * 0.1);
 
-    // Create shifting color palette
-    vec3 a = color1;
-    vec3 b = color2 - color1;
-    vec3 c = vec3(1.0, 0.5, 0.5);
-    vec3 d = vec3(0.0, 0.2, 0.5) + sin(time * 0.5) * 0.1;
+    // Add subtle time-based animation to the interpolation point
+    float animatedT = t + sin(time * 0.3) * 0.1;
+    animatedT = clamp(animatedT, 0.0, 1.0);
 
-    vec3 color = a + b * cos(TWO_PI * (c * t + d));
+    // Simple linear interpolation between your actual colors
+    vec3 baseColor = mix(color1, color2, animatedT);
 
-    // Add flowing color variations
-    color += vec3(
-    sin(t * PI * 6.0 + time) * 0.1,
-    cos(t * PI * 4.0 + time * 1.2) * 0.1,
-    sin(t * PI * 5.0 + time * 0.8) * 0.1
+    // Optional: Add subtle variations while keeping your colors dominant
+    vec3 variation = vec3(
+    sin(t * PI * 3.0 + time * 0.5) * 0.05,
+    cos(t * PI * 2.0 + time * 0.7) * 0.05,
+    sin(t * PI * 4.0 + time * 0.3) * 0.05
     );
 
-    return color;
+    return baseColor + variation;
 }
 
 // Touch ripple effect that flows with the plasma
@@ -213,21 +211,20 @@ void main() {
     // Apply intensity
     finalPlasma *= u_intensity;
 
-    // Create flowing color
     vec3 color = flowingPalette(finalPlasma, u_color1.rgb, u_color2.rgb, time);
 
-    // Add dynamic glow that flows
-    float dynamicGlow = sin(finalPlasma * PI * 2.0 + time) * 0.3 + 0.7;
+    // Add dynamic glow that flows (reduced intensity to preserve your colors)
+    float dynamicGlow = sin(finalPlasma * PI * 2.0 + time) * 0.15 + 0.85;
     color *= dynamicGlow;
 
-    // Subtle vignette
+    // Subtle vignette (reduced intensity to preserve colors)
     vec2 center = vec2(0.5);
     float dist = distance(uv, center);
-    float vignette = 1.0 - smoothstep(0.4, 1.2, dist);
-    color *= vignette * 0.7 + 0.3;
+    float vignette = 1.0 - smoothstep(0.5, 1.2, dist);
+    color *= vignette * 0.3 + 0.7;
 
-    // Add flowing highlights
-    float highlight = sin(finalPlasma * 8.0 + time * 2.0) * 0.1 + 0.9;
+    // Add flowing highlights (reduced to preserve colors)
+    float highlight = sin(finalPlasma * 8.0 + time * 2.0) * 0.05 + 0.95;
     color *= highlight;
 
     // Ensure valid range

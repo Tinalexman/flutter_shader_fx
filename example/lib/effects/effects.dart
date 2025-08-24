@@ -39,55 +39,47 @@ class _EffectsState extends State<Effects> {
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
-            fontSize: 22,
+            fontSize: 20,
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.deepPurple,
         elevation: 0,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF667eea),
-              Color(0xFF764ba2),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 24),
+              _buildCategorySection(
+                title: "🌌 Background Effects",
+                subtitle: "Stunning visual backgrounds for your app",
+                effects: _backgroundEffects,
+              ),
+              const SizedBox(height: 24),
+              _buildCategorySection(
+                title: "🎮 Interactive Effects",
+                subtitle: "Engaging touch and hover interactions",
+                effects: _interactiveEffects,
+              ),
+              const SizedBox(height: 24),
+              _buildCategorySection(
+                title: "⏳ Loading Effects",
+                subtitle: "Beautiful progress indicators and loaders",
+                effects: _loadingEffects,
+              ),
+              const SizedBox(height: 24),
+              _buildCategorySection(
+                title: "✨ Decorative Effects",
+                subtitle: "Elegant visual enhancements and styling",
+                effects: _decorativeEffects,
+              ),
+              const SizedBox(height: 32),
+              _buildFooter(),
+              const SizedBox(height: 24),
             ],
           ),
-        ),
-        child: ListView(
-          padding: const EdgeInsets.all(16.0),
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 24),
-            _buildCategorySection(
-              title: "🌌 Background Effects",
-              subtitle: "Stunning visual backgrounds for your app",
-              effects: _backgroundEffects,
-            ),
-            const SizedBox(height: 24),
-            _buildCategorySection(
-              title: "🎮 Interactive Effects",
-              subtitle: "Engaging touch and hover interactions",
-              effects: _interactiveEffects,
-            ),
-            const SizedBox(height: 24),
-            _buildCategorySection(
-              title: "⏳ Loading Effects",
-              subtitle: "Beautiful progress indicators and loaders",
-              effects: _loadingEffects,
-            ),
-            const SizedBox(height: 24),
-            _buildCategorySection(
-              title: "✨ Decorative Effects",
-              subtitle: "Elegant visual enhancements and styling",
-              effects: _decorativeEffects,
-            ),
-            const SizedBox(height: 32),
-            _buildFooter(),
-          ],
         ),
       ),
     );
@@ -142,12 +134,8 @@ class _EffectsState extends State<Effects> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: const Color(0xFF313131),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.2),
-          width: 1,
-        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,12 +193,9 @@ class _EffectsState extends State<Effects> {
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
+          color: const Color(0xFF131313),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.2),
-            width: 1,
-          ),
+
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

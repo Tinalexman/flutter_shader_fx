@@ -12,23 +12,14 @@ class _NoiseFieldBackgroundState extends State<NoiseFieldBackground> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Noise Field Background'),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
-      ),
       body: ShaderBackground.noiseField(
-        scale: 50.0,
-        speed: 1.0,
-        intensity: 0.8,
-        child: const Center(
+        // scale: 0.5,
+        speed: 1.2,
+        intensity: 1.0,
+        child: Center(
           child: Text(
-            'Noise Field Effect',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            "Noise Field Background",
+            style: TextStyle(color: Colors.white, fontSize: 20),
           ),
         ),
       ),

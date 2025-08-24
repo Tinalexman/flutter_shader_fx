@@ -11,6 +11,18 @@ class PlasmaBackground extends StatefulWidget {
 class _PlasmaBackgroundState extends State<PlasmaBackground> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: ShaderBackground.plasma());
+    return Scaffold(
+      body: ShaderBackground.plasma(
+        colors: [Colors.pink, Colors.green],
+        speed: 1.2,
+        intensity: 1.0,
+        child: Center(
+          child: Text(
+            "Plasma Background",
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+        ),
+      ),
+    );
   }
 }

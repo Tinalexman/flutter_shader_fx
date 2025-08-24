@@ -1,17 +1,18 @@
-import 'dart:developer' as d;
 import 'dart:math';
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
+
 import '../../core/base_shader_painter.dart';
 import '../../core/performance_manager.dart';
 
 /// A plasma effect painter that creates flowing, organic color patterns.
-/// 
+///
 /// This effect simulates plasma-like flowing colors using mathematical
 /// functions to create smooth, animated gradients.
-/// 
+///
 /// ## Usage
-/// 
+///
 /// ```dart
 /// CustomPaint(
 ///   painter: PlasmaEffect(
@@ -23,7 +24,7 @@ import '../../core/performance_manager.dart';
 /// ```
 class PlasmaEffect extends BaseShaderPainter {
   /// Creates a plasma effect painter.
-  /// 
+  ///
   /// [colors] are the colors to use for the plasma effect.
   /// [speed] controls the animation speed (0.0 to 2.0).
   /// [intensity] controls the effect intensity (0.0 to 1.0).
@@ -35,15 +36,15 @@ class PlasmaEffect extends BaseShaderPainter {
     this.touchPosition = const Offset(0.5, 0.5),
     PerformanceLevel? performanceLevel,
   }) : super(
-          shaderPath: 'plasma.frag',
-          uniforms: {
-            'u_intensity': intensity,
-            'u_color1': colors.isNotEmpty ? colors[0] : const Color(0xFF9C27B0),
-            'u_color2': colors.length > 1 ? colors[1] : const Color(0xFF00BCD4),
-            'u_speed': speed,
-          },
-          performanceLevel: performanceLevel ?? PerformanceLevel.medium,
-        );
+         shaderPath: 'plasma.frag',
+         uniforms: {
+           'u_intensity': intensity,
+           'u_color1': colors.isNotEmpty ? colors[0] : const Color(0xFF9C27B0),
+           'u_color2': colors.length > 1 ? colors[1] : const Color(0xFF00BCD4),
+           'u_speed': speed,
+         },
+         performanceLevel: performanceLevel ?? PerformanceLevel.medium,
+       );
 
   /// Colors for the plasma effect.
   final List<Color> colors;
@@ -66,7 +67,7 @@ class PlasmaEffect extends BaseShaderPainter {
   void setCustomUniforms(FragmentShader shader, int startIndex) {
     // Set speed uniform
     shader.setFloat(startIndex, speed);
-    
+
     // Add additional colors if more than 2
     if (colors.length > 2) {
       int colorIndex = startIndex + 1;
@@ -94,12 +95,12 @@ class PlasmaEffect extends BaseShaderPainter {
   /// Paints a plasma-like gradient effect as fallback.
   void _paintPlasmaGradient(Canvas canvas, Size size) {
     final time = DateTime.now().millisecondsSinceEpoch / 1000.0 * speed;
-    
+
     // Create multiple overlapping gradients for plasma effect
     _paintPlasmaLayer(canvas, size, time, 0.0);
     _paintPlasmaLayer(canvas, size, time * 0.7, 0.3);
     _paintPlasmaLayer(canvas, size, time * 1.3, 0.6);
-    
+
     // Add animated orbs for extra visual interest
     _paintPlasmaOrbs(canvas, size, time);
   }
@@ -109,23 +110,26 @@ class PlasmaEffect extends BaseShaderPainter {
     final centerX = size.width * (0.5 + 0.3 * sin(time + phase));
     final centerY = size.height * (0.5 + 0.2 * cos(time * 0.8 + phase));
     final center = Offset(centerX, centerY);
-    
+
     final radius = size.width * (0.6 + 0.2 * sin(time * 0.5 + phase));
-    
+
     // Create colors for this layer
     final layerColors = <Color>[];
     final stops = <double>[];
-    
+
     for (int i = 0; i < colors.length; i++) {
       final t = (i / (colors.length - 1) + phase) % 1.0;
       stops.add(t);
       layerColors.add(colors[i].withOpacity(intensity * 0.4));
     }
-    
+
     // Sort stops and colors
-    final pairs = List.generate(stops.length, (i) => MapEntry(stops[i], layerColors[i]));
+    final pairs = List.generate(
+      stops.length,
+      (i) => MapEntry(stops[i], layerColors[i]),
+    );
     pairs.sort((a, b) => a.key.compareTo(b.key));
-    
+
     final gradient = RadialGradient(
       center: Alignment(
         (center.dx / size.width) * 2 - 1,
@@ -135,28 +139,28 @@ class PlasmaEffect extends BaseShaderPainter {
       colors: pairs.map((e) => e.value).toList(),
       stops: pairs.map((e) => e.key).toList(),
     );
-    
+
     final paint = Paint()
       ..shader = gradient.createShader(Offset.zero & size)
       ..blendMode = BlendMode.screen;
-    
+
     canvas.drawRect(Offset.zero & size, paint);
   }
 
   /// Paints animated plasma orbs for additional visual interest.
   void _paintPlasmaOrbs(Canvas canvas, Size size, double time) {
     final orbCount = min(colors.length, 4);
-    
+
     for (int i = 0; i < orbCount; i++) {
       final angle = (time * (0.3 + i * 0.1) + i * 2 * pi / orbCount) % (2 * pi);
       final distance = size.width * (0.2 + 0.1 * sin(time * 0.7 + i));
       final orbRadius = size.width * (0.05 + 0.03 * sin(time + i));
-      
+
       final x = size.width / 2 + cos(angle) * distance;
       final y = size.height / 2 + sin(angle) * distance;
-      
+
       final orbColor = colors[i % colors.length].withOpacity(0.6 * intensity);
-      
+
       // Create gradient for orb
       final orbGradient = RadialGradient(
         colors: [
@@ -166,13 +170,13 @@ class PlasmaEffect extends BaseShaderPainter {
         ],
         stops: const [0.0, 0.7, 1.0],
       );
-      
+
       final orbPaint = Paint()
         ..shader = orbGradient.createShader(
           Rect.fromCircle(center: Offset(x, y), radius: orbRadius),
         )
         ..blendMode = BlendMode.plus;
-      
+
       canvas.drawCircle(Offset(x, y), orbRadius, orbPaint);
     }
   }
