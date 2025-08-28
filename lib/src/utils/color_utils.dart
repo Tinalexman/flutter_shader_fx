@@ -15,10 +15,10 @@ class ColorUtils {
   /// Returns a list of [red, green, blue, alpha] values.
   static List<double> colorToRGBA(Color color) {
     return [
-      color.red / 255.0,
-      color.green / 255.0,
-      color.blue / 255.0,
-      color.alpha / 255.0,
+      color.r,
+      color.g,
+      color.b,
+      color.a,
     ];
   }
 

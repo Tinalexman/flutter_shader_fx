@@ -11,12 +11,6 @@
 /// 
 /// // Simple plasma background
 /// ShaderBackground.plasma()
-/// 
-/// // Interactive ripple button
-/// ShaderButton.ripple(
-///   onPressed: () {},
-///   child: Text('Click me!'),
-/// )
 /// ```
 /// 
 /// ## Performance
@@ -29,17 +23,13 @@
 /// 
 /// ## Effect Categories
 /// 
-/// - **Background Effects**: Plasma, Noise Field, Liquid Metal, Fractal, etc.
-/// - **Interactive Effects**: Ripple, Magnetic, Glow Pulse, Dissolve, etc.
-/// - **Loading Effects**: Liquid Progress, Geometric Morph, Spiral Galaxy, etc.
-/// - **Decorative Effects**: Glass Morph, Neon Glow, Depth Shadow, Bokeh, etc.
+/// - **Background Effects**: Plasma etc.
 library;
 
 // Core exports
 export 'src/core/base_shader_painter.dart';
 export 'src/core/effect_controller.dart';
 export 'src/core/performance_manager.dart';
-export 'src/core/shader_loader.dart';
 
 // Widget exports
 export 'src/widgets/shader_background.dart';

@@ -1,149 +1,129 @@
-# Flutter Shader FX
+## Flutter Shader FX
 
-A comprehensive Flutter package providing pre-built, performance-optimized shader effects for Flutter's Impeller renderer. Create stunning GPU-accelerated visual effects without requiring shader programming knowledge.
+A comprehensive Flutter package providing pre-built, performance‑optimized shader effects. Built for Impeller (Vulkan/Metal) with a simple, widget‑first API so developers can add stunning, GPU‑accelerated visuals without writing GLSL.
+
+> Status: Work in Progress. Only the Plasma background effect is currently available. Additional effects will arrive in upcoming releases.
+
+---
+
+### Why Flutter Shader FX?
+- **Performance first**: Mobile‑optimized shaders that target 60fps on flagship devices and 30fps on mid‑range devices
+- **Simple API**: One‑line widgets for common effects, with sane defaults and clear customization
+- **Impeller native**: Designed for Flutter’s modern renderer (Vulkan/Metal), not legacy Skia
+- **Zero shader knowledge required**: Use widget APIs, or drop down to uniforms only when you need to
+- **Cross‑platform consistency**: Identical effects across iOS, Android, Web, and Desktop
+
+---
 
 ## Features
 
-- 🎨 **22 Pre-built Effects**: Background, interactive, loading, and decorative effects
-- ⚡ **Performance Optimized**: 60fps on flagship devices, 30fps on mid-range devices
-- 📱 **Mobile First**: Built specifically for Flutter's Impeller renderer (Vulkan/Metal)
-- 🚀 **Simple API**: Achieve stunning effects with minimal code
-- 🔧 **Zero Shader Knowledge Required**: Widget-based API abstracts GLSL complexity
-- 🌍 **Cross-Platform**: Same effects work identically across iOS, Android, Web, Desktop
+- Currently Available
+  - **Background: Plasma**
 
-## Quick Start
+- Coming Soon (WIP)
+  - Backgrounds: Noise Field, Liquid Metal, Fractal, Particle Field, Wave, Galaxy, Aurora
+  - Interactive: Ripple, Magnetic, Glow Pulse, Dissolve, Holographic, Electric
+  - Loading: Liquid Progress, Geometric Morph, Spiral Galaxy, Quantum Dots
+  - Decorative: Glass Morph, Neon Glow, Depth Shadow, Bokeh
+  - Core: Performance manager, shader loader, extended uniform presets, more widgets
+
+- Other Capabilities (designed into the architecture)
+  - Base painters, controllers, performance manager, shader loader, uniform management
+  - Graceful degradation and fallbacks on shader failure
+
+---
+
+## Table of Contents
+- Getting Started
+- Quick Start
+- Usage Examples
+- Configuration & Uniforms
+- Architecture
+- Performance Guide
+- Shaders & Conventions
+- Error Handling & Fallbacks
+- Testing & Quality
+- Example App
+- Roadmap
+- Contributing
+- FAQ
+- License
+
+---
+
+## Getting Started
 
 ### Installation
-
-Add the package to your `pubspec.yaml`:
+Add the dependency to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_shader_fx: ^0.0.1
+  flutter_shader_fx: ^0.1.0
 ```
 
-### Basic Usage
+Then run:
+
+```bash
+flutter pub get
+```
+
+Ensure your Flutter app uses Impeller (enabled by default in recent stable releases). For older versions, enable Impeller with the appropriate flags for your platform.
+
+---
+
+## Quick Start
+
+Add a plasma background in one line:
 
 ```dart
 import 'package:flutter_shader_fx/flutter_shader_fx.dart';
 
-// Simple plasma background
-ShaderBackground.plasma()
-
-// Interactive ripple button
-ShaderButton.ripple(
-  onPressed: () => print('Button pressed!'),
-  child: Text('Click me!'),
-)
-
-// Glass morphism container
-ShaderContainer.glassMorph(
-  child: Card(
-    child: Padding(
-      padding: EdgeInsets.all(16),
-      child: Text('Glass effect card'),
-    ),
-  ),
-)
-
-// Glowing text
-ShaderText.glow(
-  'Hello World',
-  glowColor: Colors.cyan,
-  glowIntensity: 0.8,
-  style: TextStyle(fontSize: 24),
-)
+Widget build(BuildContext context) {
+  return ShaderBackground.plasma();
+}
 ```
 
-## Effect Categories
+---
 
-### Background Effects (8 total)
-- **Plasma**: Organic flowing colors with customizable palette
-- **Noise Field**: Perlin noise patterns with adjustable scale
-- **Liquid Metal**: Reflective metallic surface with lighting
-- **Fractal**: Mandelbrot/Julia variations with zoom capability
-- **Particle Field**: Floating particles with physics simulation
-- **Wave**: Sine wave interference with frequency control
-- **Galaxy**: Spiral galaxy with twinkling stars
-- **Aurora**: Northern lights with realistic color gradients
+## Usage Examples
 
-### Interactive Effects (6 total)
-- **Ripple**: Touch ripple expanding from interaction point
-- **Magnetic**: Visual elements attracted to cursor/finger
-- **Glow Pulse**: Breathing glow effect on hover/press
-- **Dissolve**: Particle dissolve transition between states
-- **Holographic**: Rainbow hologram effect with viewing angle
-- **Electric**: Lightning/electricity following touch path
-
-### Loading Effects (4 total)
-- **Liquid Progress**: Fluid filling animation tied to progress value
-- **Geometric Morph**: Shape transformation indicating progress
-- **Spiral Galaxy**: Rotating spiral with progress-based intensity
-- **Quantum Dots**: Particle system loader with physics
-
-### Decorative Effects (4 total)
-- **Glass Morph**: iOS-style frosted glass with blur
-- **Neon Glow**: Cyberpunk neon borders and highlights
-- **Depth Shadow**: 3D depth illusion for flat surfaces
-- **Bokeh**: Depth of field blur with customizable focus
-
-## Advanced Usage
-
-### Customized Effects
-
+### Background: Plasma (simple)
 ```dart
-// Customized plasma background
+ShaderBackground.plasma()
+```
+
+### Background: Plasma (customized)
+```dart
 ShaderBackground.plasma(
-  colors: [Colors.purple, Colors.cyan],
+  colors: const [Colors.purple, Colors.cyan],
   speed: 1.5,
   intensity: 0.8,
 )
-
-// Custom shader background
-ShaderBackground.custom(
-  shader: 'my_effect.frag',
-  uniforms: {
-    'u_color1': Colors.red,
-    'u_color2': Colors.blue,
-    'u_speed': 2.0,
-  },
-)
 ```
 
-### Performance Optimization
+> Coming soon: Additional effects and interactive widgets. API previews may appear in docs, but only Plasma is available right now.
 
-```dart
-// Force performance level for testing
-ShaderBackground.plasma(
-  performanceLevel: PerformanceLevel.low, // low, medium, high
-)
-```
+---
 
-### Custom Shaders
+## Configuration & Uniforms
 
-```dart
-// Use your own GLSL shaders
-ShaderBackground.custom(
-  shader: 'my_custom_effect.frag',
-  uniforms: {
-    'u_time': 0.0,
-    'u_resolution': [800.0, 600.0],
-    'u_color1': Colors.purple,
-  },
-)
-```
+All effects follow a standard uniform model with consistent names and locations:
 
-## Performance Requirements
+- `u_resolution (vec2)` — Screen resolution
+- `u_time (float)` — Seconds since start
+- `u_touch (vec2)` — Normalized pointer position (0.0–1.0)
+- `u_intensity (float)` — Global effect intensity (0.0–1.0)
+- `u_color1 (vec4)` — Primary color
+- `u_color2 (vec4)` — Secondary color
+- Effect‑specific uniforms start from location 6
 
-- **60fps on flagship devices** (iPhone 14, Pixel 7, etc.)
-- **30fps on mid-range devices** (3+ year old devices)
-- **Graceful degradation** - automatically reduce quality if framerate drops
-- **Memory conscious** - maximum 50MB additional RAM usage
-- **Battery efficient** - effects should not cause significant battery drain
+Common widget parameters map to these uniforms and are documented in dartdoc for each public class.
+
+---
 
 ## Architecture
 
-The package is built with a modular architecture:
+Project structure:
 
 ```
 flutter_shader_fx/
@@ -159,91 +139,137 @@ flutter_shader_fx/
 └── test/                      # Unit and widget tests
 ```
 
-### Core Components
+Core components:
+- `BaseShaderPainter` — Base class for all custom painters
+- `EffectController` — Manages animation and state for effects
+- `PerformanceManager` — Detects device capabilities, adjusts quality
+- `ShaderLoader` — Loads and caches shader assets
 
-- **BaseShaderPainter**: All custom painters extend this class
-- **EffectController**: Manages animations and state for all effects
-- **PerformanceManager**: Handles device capability detection and optimization
-- **ShaderLoader**: Manages shader asset loading and caching
-
-## GLSL Shader Guidelines
-
-When creating custom shaders:
-
-- Use `precision mediump float` for mobile performance
-- Maximum 64 iterations in any loop
-- Comment complex math operations
-- Use consistent uniform naming: `u_` prefix for all uniforms
-- Optimize for mobile GPUs: avoid branches, prefer mix() over if/else
-
-## Standard Uniforms
-
-All effects support these standard uniforms (locations 0-5):
-
-```glsl
-uniform vec2 u_resolution;    // Screen resolution
-uniform float u_time;         // Animation time
-uniform vec2 u_touch;         // Touch/mouse position (normalized)
-uniform float u_intensity;    // Effect intensity (0.0-1.0)
-uniform vec4 u_color1;        // Primary color
-uniform vec4 u_color2;        // Secondary color
-```
-
-## Error Handling
-
-The package provides graceful error handling:
-
-- **Shader compilation failures**: Fall back to solid color or gradient
-- **Performance issues**: Automatically reduce quality settings
-- **Device compatibility**: Detect capabilities and adjust accordingly
-- **Memory constraints**: Implement shader caching and cleanup
-
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-### Development Setup
-
-1. Clone the repository
-2. Run `flutter pub get`
-3. Run `flutter test` to ensure everything works
-4. Create a feature branch and submit a pull request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Roadmap
-
-### Phase 1: Foundation ✅
-- [x] Core architecture and base classes
-- [x] First working effect (Plasma background)
-- [x] Basic widget APIs
-
-### Phase 2-4: Effect Implementation 🚧
-- [ ] Background effects (8 total)
-- [ ] Interactive effects (6 total)
-- [ ] Loading effects (4 total)
-- [ ] Decorative effects (4 total)
-
-### Phase 5: Polish & Release 📋
-- [ ] Comprehensive testing
-- [ ] Documentation and examples
-- [ ] Performance optimization
-- [ ] Production release
-
-## Support
-
-- 📖 [Documentation](https://pub.dev/documentation/flutter_shader_fx)
-- 🐛 [Issue Tracker](https://github.com/your-username/flutter_shader_fx/issues)
-- 💬 [Discussions](https://github.com/your-username/flutter_shader_fx/discussions)
-
-## Acknowledgments
-
-- Flutter team for the Impeller renderer
-- The GLSL shader community for inspiration
-- All contributors and beta testers
+Design principles:
+- Composition over inheritance for combining effects
+- Immutable public objects where feasible (`@immutable`)
+- Simple, consistent widget APIs with sensible defaults
 
 ---
 
-**Note**: This package is currently in early development. The API may change as we refine the implementation and gather feedback from the community.
+## Performance Guide
+
+- Target **60fps** on flagships and **30fps** on mid‑range devices
+- Use `precision mediump float` in shaders for mobile performance
+- Prefer `mix()`, `step()`, `smoothstep()` over branching
+- Limit loops to **≤ 64 iterations** (ray marching/particles)
+- Automatically degrade quality when frame times spike
+- Keep GPU workload predictable and avoid divergent branches
+- Memory budget: additional RAM usage ≤ 50MB
+- Battery: avoid excessive overdraw and long‑running heavy effects on static screens
+
+Tips:
+- Keep `intensity` within reasonable ranges for mobile
+- Avoid stacking multiple heavy effects on the same scene tree
+- Test on real devices; shader performance varies by GPU/driver
+
+---
+
+## Shaders & Conventions
+
+GLSL guidelines for this project:
+- `precision mediump float` for all fragment shaders unless highp is required
+- Consistent uniform naming with `u_` prefix
+- Comment non‑trivial math and utility functions
+- Avoid complex branching; use `mix()`/`smoothstep()` patterns
+- Keep shader code modular and reusable across effects
+
+Shader location: `shaders/`
+
+---
+
+## Error Handling & Fallbacks
+
+- Shader compilation failure → fallback to a solid color or gradient
+- Performance degradation detected → reduce quality parameters automatically
+- Device capability mismatch → adjust accuracy or disable problematic features
+- Shader cache is maintained and cleaned up to honor memory budgets
+
+All public widgets fail gracefully and never crash the app due to shader issues.
+
+---
+
+## Testing & Quality
+
+- Unit tests for all widget classes and utilities (`test/`)
+- Golden tests where feasible for visual consistency
+- Performance benchmarks across device tiers
+- Integration tests in the example app
+- Manual testing matrix across iOS/Android/Web/Desktop
+
+Run tests:
+
+```bash
+flutter test
+```
+
+---
+
+## Example App
+
+A comprehensive demo is available under `example/`. The demo will progressively showcase more effects as they are implemented. For now, it focuses on Plasma.
+
+Run the example:
+
+```bash
+cd example
+flutter run
+```
+
+---
+
+## Roadmap
+
+Phase 1: Foundation
+- Core architecture and first shipping effect (Plasma background)
+
+Phase 2–4: Effects
+- Implement background effects first, then interactive, loading, decorative
+- Continuous optimization and API consistency improvements
+
+Phase 5: Polish & Release
+- Docs, examples, performance tuning, cross‑platform QA
+
+Community Goals
+- Pub points excellence, strong documentation, and adoption in popular apps
+
+---
+
+## Contributing
+
+Contributions are welcome! Please:
+- Follow the Dart style guide (80‑char line limit where practical)
+- Use descriptive names (e.g., `plasmaIntensity`)
+- Document all public APIs with dartdoc and examples
+- Prefer composition; avoid deep inheritance chains
+- Include tests (unit, golden where possible)
+- Consider battery and thermal impacts when adding heavy effects
+
+Open pull requests with a clear description, screenshots/gifs where applicable, and performance notes.
+
+---
+
+## FAQ
+
+- Can I use these effects without knowing GLSL?
+  Yes. The widget API abstracts shader details. For advanced use, you can pass uniforms directly.
+
+- Does this work with Skia?
+  It targets Impeller first. Some effects may work under Skia, but performance and consistency are not guaranteed.
+
+- How do I keep 60fps?
+  Use mediump precision, avoid stacking heavy effects, and let the performance manager adapt quality.
+
+- Is Web supported?
+  Yes, with consistent results. Test on target browsers/GPUs; performance varies.
+
+---
+
+## License
+
+This project is licensed under the MIT License. See `LICENSE` for details. 

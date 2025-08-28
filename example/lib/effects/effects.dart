@@ -11,6 +11,22 @@ class Effects extends StatefulWidget {
 class _EffectsState extends State<Effects> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: ShaderBackground.plasma());
+    return Scaffold(
+      body: ShaderBackground.plasma(
+        colors: [Colors.white, Colors.black],
+        speed: 2.0,
+        performanceLevel: PerformanceLevel.high,
+        child: Center(
+          child: Text(
+            "Plasma Background",
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 20,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

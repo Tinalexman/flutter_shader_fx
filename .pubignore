@@ -1,0 +1,7 @@
+.cursorrules
+# Exclude heavy example assets from the package to reduce size
+example/fonts/
+# You can also exclude platform folders from example if desired (uncomment below)
+# example/android/
+# example/ios/
+# example/windows/ 

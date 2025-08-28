@@ -1,5 +1,5 @@
 name: flutter_shader_fx
-description: "A comprehensive Flutter package providing pre-built, performance-optimized shader effects for Flutter's Impeller renderer. Create stunning GPU-accelerated visual effects without requiring shader programming knowledge."
+description: "Pre-built, Impeller-optimized shader effects for Flutter. Add GPU-accelerated visuals with simple widgets—no GLSL required. (WIP: Plasma available)"
 version: 0.0.1
 homepage: https://github.com/Tinalexman/flutter_shader_fx
 repository: https://github.com/Tinalexman/flutter_shader_fx

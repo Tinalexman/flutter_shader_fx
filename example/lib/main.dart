@@ -18,10 +18,9 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Flutter FX Examples",
+      title: "Flutter Shader FX Example",
       themeMode: ThemeMode.dark,
       theme: ThemeData(
-        fontFamily: "Outfit",
         scaffoldBackgroundColor: color,
         appBarTheme: AppBarTheme(color: color),
       ),
