@@ -50,30 +50,6 @@ export 'src/widgets/shader_text.dart';
 
 // Effect exports
 export 'src/effects/background/plasma_effect.dart';
-export 'src/effects/background/noise_field_effect.dart';
-export 'src/effects/background/liquid_metal_effect.dart';
-export 'src/effects/background/fractal_effect.dart';
-export 'src/effects/background/particle_field_effect.dart';
-export 'src/effects/background/wave_effect.dart';
-export 'src/effects/background/galaxy_effect.dart';
-export 'src/effects/background/aurora_effect.dart';
-
-export 'src/effects/interactive/ripple_effect.dart';
-export 'src/effects/interactive/magnetic_effect.dart';
-export 'src/effects/interactive/glow_pulse_effect.dart';
-export 'src/effects/interactive/dissolve_effect.dart';
-export 'src/effects/interactive/holographic_effect.dart';
-export 'src/effects/interactive/electric_effect.dart';
-
-export 'src/effects/loading/liquid_progress_effect.dart';
-export 'src/effects/loading/geometric_morph_effect.dart';
-export 'src/effects/loading/spiral_galaxy_effect.dart';
-export 'src/effects/loading/quantum_dots_effect.dart';
-
-export 'src/effects/decorative/glass_morph_effect.dart';
-export 'src/effects/decorative/neon_glow_effect.dart';
-export 'src/effects/decorative/depth_shadow_effect.dart';
-export 'src/effects/decorative/bokeh_effect.dart';
 
 // Utility exports
 export 'src/utils/color_utils.dart';
