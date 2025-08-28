@@ -2,15 +2,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 /// Controller for managing shader effect animations and state.
-/// 
+///
 /// This class provides a centralized way to control effect parameters,
 /// animations, and performance settings for shader effects.
-/// 
+///
 /// ## Usage
-/// 
+///
 /// ```dart
 /// final controller = EffectController();
-/// 
+///
 /// // Start an animation
 /// controller.animate(
 ///   duration: Duration(seconds: 2),
@@ -19,13 +19,13 @@ import 'package:flutter/material.dart';
 ///     // Update effect parameters based on animation value
 ///   },
 /// );
-/// 
+///
 /// // Dispose when done
 /// controller.dispose();
 /// ```
 class EffectController extends ChangeNotifier {
   /// Creates an effect controller.
-  /// 
+  ///
   /// [autoDispose] determines whether the controller automatically
   /// disposes itself when no listeners are attached.
   EffectController({this.autoDispose = false}); // Changed default to false
@@ -71,7 +71,7 @@ class EffectController extends ChangeNotifier {
   int _updateFrequency = 16; // ~60fps
 
   /// Sets the animation value.
-  /// 
+  ///
   /// [value] should be between 0.0 and 1.0.
   void setAnimationValue(double value) {
     if (_disposed) return;
@@ -80,7 +80,7 @@ class EffectController extends ChangeNotifier {
   }
 
   /// Sets the touch position.
-  /// 
+  ///
   /// [position] should be in normalized coordinates (0.0 to 1.0).
   void setTouchPosition(Offset position) {
     if (_disposed) return;
@@ -92,7 +92,7 @@ class EffectController extends ChangeNotifier {
   }
 
   /// Sets the effect intensity.
-  /// 
+  ///
   /// [intensity] should be between 0.0 and 1.0.
   void setIntensity(double intensity) {
     if (_disposed) return;
@@ -123,7 +123,7 @@ class EffectController extends ChangeNotifier {
   }
 
   /// Animates a parameter over time.
-  /// 
+  ///
   /// [duration] is the length of the animation.
   /// [curve] is the animation curve to use.
   /// [callback] is called with the current animation value (0.0 to 1.0).
@@ -138,7 +138,7 @@ class EffectController extends ChangeNotifier {
     bool reverse = false,
   }) async {
     if (_disposed) return;
-    
+
     _isAnimating = true;
     _safeNotifyListeners();
 
@@ -151,10 +151,7 @@ class EffectController extends ChangeNotifier {
     final animation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController!,
-      curve: curve,
-    ));
+    ).animate(CurvedAnimation(parent: _animationController!, curve: curve));
 
     animation.addListener(() {
       if (_disposed) return;
@@ -189,7 +186,7 @@ class EffectController extends ChangeNotifier {
   }
 
   /// Starts periodic updates for continuous effects.
-  /// 
+  ///
   /// [frequency] is the update frequency in milliseconds.
   /// [callback] is called on each update with the current time.
   void startPeriodicUpdates({
@@ -197,22 +194,21 @@ class EffectController extends ChangeNotifier {
     required void Function(double time) callback,
   }) {
     if (_disposed) return;
-    
+
     _updateFrequency = frequency ?? _updateFrequency;
-    
+
     _updateTimer?.cancel();
-    _updateTimer = Timer.periodic(
-      Duration(milliseconds: _updateFrequency),
-      (timer) {
-        if (_disposed) {
-          timer.cancel();
-          return;
-        }
-        final time = DateTime.now().millisecondsSinceEpoch / 1000.0;
-        callback(time);
-        _safeNotifyListeners();
-      },
-    );
+    _updateTimer = Timer.periodic(Duration(milliseconds: _updateFrequency), (
+      timer,
+    ) {
+      if (_disposed) {
+        timer.cancel();
+        return;
+      }
+      final time = DateTime.now().millisecondsSinceEpoch / 1000.0;
+      callback(time);
+      _safeNotifyListeners();
+    });
   }
 
   /// Stops periodic updates.
@@ -222,11 +218,11 @@ class EffectController extends ChangeNotifier {
   }
 
   /// Gets a map of current uniform values.
-  /// 
+  ///
   /// This is useful for passing to shader painters.
   Map<String, dynamic> getUniforms() {
     if (_disposed) return {};
-    
+
     return {
       'u_animation': _animationValue,
       'u_touch': _touchPosition,
@@ -247,13 +243,13 @@ class EffectController extends ChangeNotifier {
   @override
   void dispose() {
     if (_disposed) return;
-    
+
     _disposed = true;
     _animationController?.dispose();
     _animationController = null;
     _updateTimer?.cancel();
     _updateTimer = null;
-    
+
     super.dispose();
   }
 

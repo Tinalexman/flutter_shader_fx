@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 /// Utility functions for mathematical operations used in shader effects.
-/// 
+///
 /// This class provides helper functions for common mathematical operations
 /// needed in shader effects, including interpolation, noise, and geometric calculations.
 class MathUtils {
@@ -9,7 +9,7 @@ class MathUtils {
   MathUtils._();
 
   /// Clamps a value between min and max.
-  /// 
+  ///
   /// [value] is the value to clamp.
   /// [min] is the minimum value.
   /// [max] is the maximum value.
@@ -19,7 +19,7 @@ class MathUtils {
   }
 
   /// Linearly interpolates between two values.
-  /// 
+  ///
   /// [a] is the first value.
   /// [b] is the second value.
   /// [t] is the interpolation factor (0.0 to 1.0).
@@ -29,7 +29,7 @@ class MathUtils {
   }
 
   /// Smoothly interpolates between two values using smoothstep.
-  /// 
+  ///
   /// [a] is the first value.
   /// [b] is the second value.
   /// [t] is the interpolation factor (0.0 to 1.0).
@@ -40,7 +40,7 @@ class MathUtils {
   }
 
   /// Converts degrees to radians.
-  /// 
+  ///
   /// [degrees] is the angle in degrees.
   /// Returns the angle in radians.
   static double degreesToRadians(double degrees) {
@@ -48,7 +48,7 @@ class MathUtils {
   }
 
   /// Converts radians to degrees.
-  /// 
+  ///
   /// [radians] is the angle in radians.
   /// Returns the angle in degrees.
   static double radiansToDegrees(double radians) {
@@ -56,7 +56,7 @@ class MathUtils {
   }
 
   /// Calculates the distance between two 2D points.
-  /// 
+  ///
   /// [x1] is the x coordinate of the first point.
   /// [y1] is the y coordinate of the first point.
   /// [x2] is the x coordinate of the second point.
@@ -69,7 +69,7 @@ class MathUtils {
   }
 
   /// Calculates the squared distance between two 2D points.
-  /// 
+  ///
   /// This is faster than distance() when you only need to compare distances.
   /// [x1] is the x coordinate of the first point.
   /// [y1] is the y coordinate of the first point.
@@ -83,7 +83,7 @@ class MathUtils {
   }
 
   /// Calculates the length of a 2D vector.
-  /// 
+  ///
   /// [x] is the x component of the vector.
   /// [y] is the y component of the vector.
   /// Returns the length of the vector.
@@ -92,7 +92,7 @@ class MathUtils {
   }
 
   /// Normalizes a 2D vector.
-  /// 
+  ///
   /// [x] is the x component of the vector.
   /// [y] is the y component of the vector.
   /// Returns a list [normalizedX, normalizedY].
@@ -103,7 +103,7 @@ class MathUtils {
   }
 
   /// Calculates the dot product of two 2D vectors.
-  /// 
+  ///
   /// [x1] is the x component of the first vector.
   /// [y1] is the y component of the first vector.
   /// [x2] is the x component of the second vector.
@@ -114,7 +114,7 @@ class MathUtils {
   }
 
   /// Calculates the cross product of two 2D vectors.
-  /// 
+  ///
   /// [x1] is the x component of the first vector.
   /// [y1] is the y component of the first vector.
   /// [x2] is the x component of the second vector.
@@ -125,7 +125,7 @@ class MathUtils {
   }
 
   /// Maps a value from one range to another.
-  /// 
+  ///
   /// [value] is the value to map.
   /// [fromMin] is the minimum of the source range.
   /// [fromMax] is the maximum of the source range.
@@ -143,7 +143,7 @@ class MathUtils {
   }
 
   /// Wraps a value to a range.
-  /// 
+  ///
   /// [value] is the value to wrap.
   /// [min] is the minimum of the range.
   /// [max] is the maximum of the range.
@@ -151,13 +151,13 @@ class MathUtils {
   static double wrap(double value, double min, double max) {
     final range = max - min;
     if (range == 0.0) return min;
-    
+
     final wrapped = (value - min) % range;
     return wrapped < 0.0 ? wrapped + max : wrapped + min;
   }
 
   /// Calculates the modulo operation that works with negative numbers.
-  /// 
+  ///
   /// [value] is the dividend.
   /// [divisor] is the divisor.
   /// Returns the modulo result.
@@ -166,7 +166,7 @@ class MathUtils {
   }
 
   /// Calculates the fractional part of a number.
-  /// 
+  ///
   /// [value] is the number.
   /// Returns the fractional part (0.0 to 1.0).
   static double fract(double value) {
@@ -174,7 +174,7 @@ class MathUtils {
   }
 
   /// Calculates the integer part of a number.
-  /// 
+  ///
   /// [value] is the number.
   /// Returns the integer part.
   static int floor(double value) {
@@ -182,7 +182,7 @@ class MathUtils {
   }
 
   /// Calculates the ceiling of a number.
-  /// 
+  ///
   /// [value] is the number.
   /// Returns the ceiling.
   static int ceil(double value) {
@@ -190,7 +190,7 @@ class MathUtils {
   }
 
   /// Rounds a number to the nearest integer.
-  /// 
+  ///
   /// [value] is the number.
   /// Returns the rounded value.
   static int round(double value) {
@@ -198,7 +198,7 @@ class MathUtils {
   }
 
   /// Calculates the absolute value.
-  /// 
+  ///
   /// [value] is the number.
   /// Returns the absolute value.
   static double abs(double value) {
@@ -206,7 +206,7 @@ class MathUtils {
   }
 
   /// Calculates the sign of a number.
-  /// 
+  ///
   /// [value] is the number.
   /// Returns -1.0 if negative, 0.0 if zero, 1.0 if positive.
   static double sign(double value) {
@@ -216,7 +216,7 @@ class MathUtils {
   }
 
   /// Calculates the minimum of two values.
-  /// 
+  ///
   /// [a] is the first value.
   /// [b] is the second value.
   /// Returns the minimum value.
@@ -225,7 +225,7 @@ class MathUtils {
   }
 
   /// Calculates the maximum of two values.
-  /// 
+  ///
   /// [a] is the first value.
   /// [b] is the second value.
   /// Returns the maximum value.
@@ -234,7 +234,7 @@ class MathUtils {
   }
 
   /// Calculates the power of a number.
-  /// 
+  ///
   /// [base] is the base number.
   /// [exponent] is the exponent.
   /// Returns the result.
@@ -243,7 +243,7 @@ class MathUtils {
   }
 
   /// Calculates the square root of a number.
-  /// 
+  ///
   /// [value] is the number.
   /// Returns the square root.
   static double sqrt(double value) {
@@ -251,7 +251,7 @@ class MathUtils {
   }
 
   /// Calculates the sine of an angle.
-  /// 
+  ///
   /// [angle] is the angle in radians.
   /// Returns the sine value.
   static double sin(double angle) {
@@ -259,7 +259,7 @@ class MathUtils {
   }
 
   /// Calculates the cosine of an angle.
-  /// 
+  ///
   /// [angle] is the angle in radians.
   /// Returns the cosine value.
   static double cos(double angle) {
@@ -267,7 +267,7 @@ class MathUtils {
   }
 
   /// Calculates the tangent of an angle.
-  /// 
+  ///
   /// [angle] is the angle in radians.
   /// Returns the tangent value.
   static double tan(double angle) {
@@ -275,7 +275,7 @@ class MathUtils {
   }
 
   /// Calculates the arc sine of a value.
-  /// 
+  ///
   /// [value] is the value (-1.0 to 1.0).
   /// Returns the angle in radians.
   static double asin(double value) {
@@ -283,7 +283,7 @@ class MathUtils {
   }
 
   /// Calculates the arc cosine of a value.
-  /// 
+  ///
   /// [value] is the value (-1.0 to 1.0).
   /// Returns the angle in radians.
   static double acos(double value) {
@@ -291,7 +291,7 @@ class MathUtils {
   }
 
   /// Calculates the arc tangent of a value.
-  /// 
+  ///
   /// [value] is the value.
   /// Returns the angle in radians.
   static double atan(double value) {
@@ -299,7 +299,7 @@ class MathUtils {
   }
 
   /// Calculates the arc tangent of y/x.
-  /// 
+  ///
   /// [y] is the y coordinate.
   /// [x] is the x coordinate.
   /// Returns the angle in radians.
@@ -308,7 +308,7 @@ class MathUtils {
   }
 
   /// Calculates the natural logarithm of a number.
-  /// 
+  ///
   /// [value] is the number.
   /// Returns the natural logarithm.
   static double log(double value) {
@@ -316,10 +316,10 @@ class MathUtils {
   }
 
   /// Calculates the exponential of a number.
-  /// 
+  ///
   /// [value] is the number.
   /// Returns e raised to the power of value.
   static double exp(double value) {
     return math.exp(value);
   }
-} 
+}

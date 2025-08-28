@@ -2,25 +2,25 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 /// Manages performance optimization for shader effects.
-/// 
+///
 /// This class detects device capabilities and automatically adjusts
 /// shader quality settings to ensure smooth performance across
 /// different device tiers.
-/// 
+///
 /// ## Usage
-/// 
+///
 /// ```dart
 /// final performanceManager = PerformanceManager();
-/// 
+///
 /// // Get recommended performance level for current device
 /// final level = performanceManager.getRecommendedPerformanceLevel();
-/// 
+///
 /// // Check if device supports high-quality shaders
 /// final supportsHighQuality = performanceManager.supportsHighQuality();
 /// ```
 class PerformanceManager {
   /// Creates a performance manager.
-  /// 
+  ///
   /// [forcePerformanceLevel] can be used to override automatic detection
   /// for testing purposes.
   PerformanceManager({PerformanceLevel? forcePerformanceLevel}) {
@@ -110,7 +110,7 @@ class PerformanceManager {
     // Android capabilities vary widely by device
     // We'll use a conservative approach for now
     _supportsHighQuality = false;
-    
+
     // Could be enhanced with device-specific detection
     // For now, assume mid-range capabilities
     _performanceLevel = PerformanceLevel.medium;
@@ -128,7 +128,7 @@ class PerformanceManager {
   void _detectHardwareCapabilities() {
     // This would ideally use platform channels to get actual
     // device specifications. For now, we'll use conservative estimates.
-    
+
     if (kIsWeb) {
       _deviceMemory = 4.0; // Conservative estimate for web
       _cpuCores = 4;
@@ -157,7 +157,7 @@ class PerformanceManager {
   }
 
   /// Gets quality settings for the current performance level.
-  /// 
+  ///
   /// Returns a map of quality settings that can be used to configure
   /// shader effects for optimal performance.
   Map<String, dynamic> getQualitySettings() {
@@ -193,7 +193,7 @@ class PerformanceManager {
   }
 
   /// Checks if the current device can handle a specific effect complexity.
-  /// 
+  ///
   /// [complexity] should be a value between 0.0 and 1.0, where 1.0
   /// represents the most complex effects.
   bool canHandleComplexity(double complexity) {
@@ -211,7 +211,7 @@ class PerformanceManager {
   }
 
   /// Gets recommended shader optimization settings.
-  /// 
+  ///
   /// These settings can be passed to shader compilers or used
   /// to adjust shader parameters for better performance.
   Map<String, dynamic> getShaderOptimizations() {
@@ -241,7 +241,7 @@ class PerformanceManager {
   }
 
   /// Forces a specific performance level (for testing).
-  /// 
+  ///
   /// This should only be used for testing purposes, not in production.
   void forcePerformanceLevel(PerformanceLevel level) {
     _performanceLevel = level;
@@ -258,22 +258,22 @@ class PerformanceManager {
 }
 
 /// Performance levels for shader effects.
-/// 
+///
 /// These levels determine quality settings and optimization strategies
 /// to ensure smooth performance across different device capabilities.
 enum PerformanceLevel {
   /// Low performance mode for older devices.
-  /// 
+  ///
   /// Uses reduced quality settings and aggressive optimization.
   low,
-  
+
   /// Medium performance mode for mid-range devices.
-  /// 
+  ///
   /// Balanced quality and performance settings.
   medium,
-  
+
   /// High performance mode for flagship devices.
-  /// 
+  ///
   /// Maximum quality settings with minimal optimization.
   high,
-} 
+}

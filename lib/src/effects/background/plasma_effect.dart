@@ -126,7 +126,7 @@ class PlasmaEffect extends BaseShaderPainter {
     for (int i = 0; i < colors.length; i++) {
       final t = (i / (colors.length - 1) + phase) % 1.0;
       stops.add(t);
-      layerColors.add(colors[i].withOpacity(intensity * 0.4));
+      layerColors.add(colors[i].withValues(alpha: intensity * 0.4));
     }
 
     // Sort stops and colors
@@ -165,14 +165,16 @@ class PlasmaEffect extends BaseShaderPainter {
       final x = size.width / 2 + cos(angle) * distance;
       final y = size.height / 2 + sin(angle) * distance;
 
-      final orbColor = colors[i % colors.length].withOpacity(0.6 * intensity);
+      final orbColor = colors[i % colors.length].withValues(
+        alpha: 0.6 * intensity,
+      );
 
       // Create gradient for orb
       final orbGradient = RadialGradient(
         colors: [
           orbColor,
-          orbColor.withOpacity(0.3),
-          orbColor.withOpacity(0.0),
+          orbColor.withValues(alpha: 0.3),
+          orbColor.withValues(alpha: 0.0),
         ],
         stops: const [0.0, 0.7, 1.0],
       );
