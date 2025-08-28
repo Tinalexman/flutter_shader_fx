@@ -43,10 +43,7 @@ export 'src/core/shader_loader.dart';
 
 // Widget exports
 export 'src/widgets/shader_background.dart';
-export 'src/widgets/shader_button.dart';
-export 'src/widgets/shader_container.dart';
-export 'src/widgets/shader_interactive.dart';
-export 'src/widgets/shader_text.dart';
+
 
 // Effect exports
 export 'src/effects/background/plasma_effect.dart';
