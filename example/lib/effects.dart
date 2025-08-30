@@ -12,16 +12,10 @@ class _EffectsState extends State<Effects> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF101010),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF101010),
         title: Text(
           'Effects',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -32,6 +26,33 @@ class _EffectsState extends State<Effects> {
             child: Column(
               spacing: 10,
               children: [
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ShaderEffect.distortion(
+                    performanceLevel: PerformanceLevel.medium,
+                    intensity: 0.75,
+                    speed: 1.25,
+                    child: Container(
+                      width: double.infinity,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Distortion Effect',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                 // ShaderBackground.plasma(
                 //   colors: [Colors.white, Colors.red],
                 //   size: const Size(double.infinity, 400),
@@ -44,7 +65,6 @@ class _EffectsState extends State<Effects> {
                 //       Text(
                 //         'Plasma',
                 //         style: TextStyle(
-                //           color: Colors.white,
                 //           fontSize: 24,
                 //           fontWeight: FontWeight.w600,
                 //         ),
@@ -56,7 +76,7 @@ class _EffectsState extends State<Effects> {
                 //     ],
                 //   ),
                 // ),
-                // ShaderBackground.digitalGlitch(
+                // ShaderBackground.glitch(
                 //   colors: [Colors.white, Colors.blue],
                 //   glitchType: GlitchType.analog,
                 //   size: const Size(double.infinity, 400),
@@ -69,7 +89,6 @@ class _EffectsState extends State<Effects> {
                 //       Text(
                 //         'Digital Glitch',
                 //         style: TextStyle(
-                //           color: Colors.white,
                 //           fontSize: 24,
                 //           fontWeight: FontWeight.w600,
                 //         ),

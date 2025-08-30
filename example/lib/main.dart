@@ -13,17 +13,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final Color color = const Color(0xFF101010);
-
+  
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Flutter Shader FX Example",
-      themeMode: ThemeMode.dark,
-      theme: ThemeData(
-        scaffoldBackgroundColor: color,
-        appBarTheme: AppBarTheme(color: color),
-      ),
       home: const Effects(),
     );
   }
