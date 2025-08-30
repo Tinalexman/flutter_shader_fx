@@ -22,4 +22,5 @@ flutter:
 
   shaders:
     - shaders/plasma.frag
+    - shaders/digital_glitch.frag
   

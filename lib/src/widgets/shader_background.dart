@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_shader_fx/flutter_shader_fx.dart';
 
@@ -33,72 +31,53 @@ import 'package:flutter_shader_fx/flutter_shader_fx.dart';
 /// )
 /// ```
 class ShaderBackground extends StatefulWidget {
-  /// Creates a shader background with a custom shader.
+  /// Creates a shader background with a plasma effect.
   ///
-  /// [shader] should be the path to the GLSL fragment shader file.
-  /// [uniforms] are the uniform values to pass to the shader.
-  /// [child] is the widget to display on top of the background.
-  /// [performanceLevel] determines the quality settings for the effect.
-  const ShaderBackground.custom({
-    super.key,
-    required this.shader,
-    this.uniforms = const {},
-    this.child,
-    this.performanceLevel,
-  }) : effectType = null,
-       colors = const [],
-       speed = 1.0,
-       intensity = 1.0,
-       scale = 50.0,
-       metallicness = 0.8,
-       roughness = 0.2,
-       zoom = 1.0,
-       center = const Offset(0.5, 0.5),
-       maxIterations = 100,
-       particleCount = 100,
-       particleSize = 2.0,
-       frequency = 2.0,
-       amplitude = 0.5,
-       starCount = 200,
-       spiralArms = 4,
-       layers = 3;
-
-  /// Creates a plasma background effect.
-  ///
-  /// [colors] are the colors to use for the plasma effect.
-  /// [speed] controls the animation speed (0.0 to 2.0).
-  /// [intensity] controls the effect intensity (0.0 to 1.0).
+  /// [colors] is the colors of the plasma effect.
+  /// [speed] is the speed of the animation.
+  /// [intensity] is the intensity of the effect.
   /// [child] is the widget to display on top of the background.
   /// [performanceLevel] determines the quality settings for the effect.
   const ShaderBackground.plasma({
     super.key,
     this.colors = const [Color(0xFF9C27B0), Color(0xFF00BCD4)],
     this.speed = 1.0,
-    this.intensity = 1.0,
     this.child,
+    this.intensity = 1.0,
     this.performanceLevel,
-  }) : effectType = ShaderEffectType.plasma,
-       shader = null,
-       uniforms = const {},
-       scale = 50.0,
-       metallicness = 0.8,
-       roughness = 0.2,
-       zoom = 1.0,
-       center = const Offset(0.5, 0.5),
-       maxIterations = 100,
-       particleCount = 100,
-       particleSize = 2.0,
-       frequency = 2.0,
-       amplitude = 0.5,
-       starCount = 200,
-       spiralArms = 4,
-       layers = 3;
+    this.size = const Size(100, 100),
+  }) : uniforms = const {},
+       effect = ShaderEffect.plasma,
+       glitchType = null;
 
-  /// The type of shader effect to use.
-  final ShaderEffectType? effectType;
+  /// Creates a shader background with a glitch effect.
+  ///
+  /// [colors] is the colors of the glitch effect.
+  /// [speed] is the speed of the animation.
+  /// [intensity] is the intensity of the effect.
+  /// [child] is the widget to display on top of the background.
+  /// [glitchType] is the type of glitch effect.
+  /// [performanceLevel] determines the quality settings for the effect.
+  const ShaderBackground.glitch({
+    super.key,
+    this.colors = const [Colors.white],
+    this.speed = 1.0,
+    this.child,
+    this.intensity = 1.0,
+    this.performanceLevel,
+    this.glitchType = GlitchType.corruption,
+    this.size = const Size(100, 100),
+  }) : uniforms = const {},
+       effect = ShaderEffect.glitch;
 
-  /// The path to the custom GLSL shader file.
-  final String? shader;
+  /// The size of the background.
+  final Size size;
+
+  /// The type of shader to be used;
+  final ShaderEffect effect;
+
+  /// The type of glitch effect.
+  final GlitchType? glitchType;
 
   /// Uniform values to pass to the shader.
   final Map<String, dynamic> uniforms;
@@ -111,45 +90,6 @@ class ShaderBackground extends StatefulWidget {
 
   /// Effect intensity (0.0 to 1.0).
   final double intensity;
-
-  /// Scale for noise field effect (higher = smaller details).
-  final double scale;
-
-  /// Metallicness for liquid metal effect (0.0 to 1.0).
-  final double metallicness;
-
-  /// Roughness for liquid metal effect (0.0 to 1.0).
-  final double roughness;
-
-  /// Zoom level for fractal effect (higher = more zoomed in).
-  final double zoom;
-
-  /// Center point for fractal effect (normalized coordinates).
-  final Offset center;
-
-  /// Maximum iterations for fractal effect.
-  final int maxIterations;
-
-  /// Particle count for particle field effect.
-  final int particleCount;
-
-  /// Particle size for particle field effect (0.5 to 5.0).
-  final double particleSize;
-
-  /// Wave frequency for wave effect (0.5 to 5.0).
-  final double frequency;
-
-  /// Wave amplitude for wave effect (0.1 to 1.0).
-  final double amplitude;
-
-  /// Star count for galaxy effect.
-  final int starCount;
-
-  /// Spiral arms for galaxy effect (2 to 6).
-  final int spiralArms;
-
-  /// Aurora layers for aurora effect (1 to 5).
-  final int layers;
 
   /// The widget to display on top of the background.
   final Widget? child;
@@ -167,6 +107,10 @@ class _ShaderBackgroundState extends State<ShaderBackground>
   late PerformanceManager _performanceManager;
   BaseShaderPainter? _painter;
   int _repaintKey = 0; // Key to force repaints
+
+  // Touch position tracking
+  Offset _touchPosition = const Offset(0.5, 0.5); // Default to center
+  bool _isTouching = false;
 
   @override
   void initState() {
@@ -199,15 +143,6 @@ class _ShaderBackgroundState extends State<ShaderBackground>
         setState(() => _repaintKey++);
       }
     });
-
-    // Set initial values
-    if (widget.colors.isNotEmpty) {
-      _controller.setColor1(widget.colors.first);
-      if (widget.colors.length > 1) {
-        _controller.setColor2(widget.colors[1]);
-      }
-    }
-    _controller.setIntensity(widget.intensity);
   }
 
   void _initializePerformanceManager() {
@@ -229,27 +164,60 @@ class _ShaderBackgroundState extends State<ShaderBackground>
     );
   }
 
+  /// Gets the current touch position in normalized coordinates (0.0 to 1.0).
+  Offset getTouchPosition() => _touchPosition;
+
+  /// Updates the touch position and triggers a repaint.
+  void _updateTouchPosition(Offset position, Size size) {
+    // Convert to normalized coordinates (0.0 to 1.0) with Y-axis flip
+    Offset normalizedPosition = Offset(
+      position.dx / size.width,
+      (position.dy / size.height),
+    );
+
+    // Clamp to valid range
+    Offset clampedPosition = Offset(
+      normalizedPosition.dx.clamp(0.0, 1.0),
+      normalizedPosition.dy.clamp(0.0, 1.0),
+    );
+
+    if (_touchPosition != clampedPosition) {
+      setState(() {
+        _touchPosition = clampedPosition;
+        _isTouching = true;
+      });
+    }
+  }
+
+  /// Resets touch state when touch ends.
+  void _resetTouch() {
+    if (_isTouching) {
+      setState(() {
+        _isTouching = false;
+      });
+    }
+  }
+
   void _createPainter() {
-    // Dispose old painter first
     _painter?.dispose();
 
-    if (widget.effectType == ShaderEffectType.plasma) {
+    if (widget.effect == ShaderEffect.plasma) {
       _painter = PlasmaEffect(
         colors: widget.colors,
-        speed: widget.speed,
         intensity: widget.intensity,
-        performanceLevel: _performanceManager.performanceLevel,
+        performanceLevel: widget.performanceLevel,
+        speed: widget.speed,
+        touchPosition: getTouchPosition,
       );
     }
-    // ... other effect types remain the same
-    else if (widget.shader != null) {
-      _painter = _CustomShaderPainter(
-        shaderPath: widget.shader!,
-        uniforms: {
-          ...widget.uniforms,
-          ..._controller.getUniforms(), // Include controller uniforms
-        },
-        performanceLevel: _performanceManager.performanceLevel,
+    if (widget.effect == ShaderEffect.glitch) {
+      _painter = GlitchEffect(
+        colors: widget.colors,
+        intensity: widget.intensity,
+        glitchType: widget.glitchType ?? GlitchType.corruption,
+        performanceLevel: widget.performanceLevel,
+        speed: widget.speed,
+        touchPosition: getTouchPosition,
       );
     }
   }
@@ -265,25 +233,23 @@ class _ShaderBackgroundState extends State<ShaderBackground>
       _startContinuousAnimation();
     }
 
-    // Update controller if values changed
-    if (widget.colors != oldWidget.colors && widget.colors.isNotEmpty) {
-      _controller.setColor1(widget.colors.first);
-      if (widget.colors.length > 1) {
-        _controller.setColor2(widget.colors[1]);
-      }
-    }
-
-    if (widget.intensity != oldWidget.intensity) {
-      _controller.setIntensity(widget.intensity);
-    }
+    int oldWidgetColorsHashCode = oldWidget.colors.hashCode;
+    int newWidgetColorsHashCode = widget.colors.hashCode;
 
     // Recreate painter if effect type or shader changed
-    if (widget.effectType != oldWidget.effectType ||
-        widget.shader != oldWidget.shader ||
+    if (widget.effect != oldWidget.effect ||
         widget.speed != oldWidget.speed ||
-        widget.performanceLevel != oldWidget.performanceLevel) {
+        widget.intensity != oldWidget.intensity ||
+        oldWidgetColorsHashCode != newWidgetColorsHashCode ||
+        widget.performanceLevel != oldWidget.performanceLevel ||
+        widget.glitchType != oldWidget.glitchType) {
       _createPainter();
       _loadShaderAsync();
+    }
+
+    // Force repaint when touch position changes (for interactive effects)
+    if (_isTouching) {
+      setState(() => _repaintKey++);
     }
   }
 
@@ -308,12 +274,30 @@ class _ShaderBackgroundState extends State<ShaderBackground>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        return CustomPaint(
-          painter: _painter,
-          key: ValueKey<int>(_repaintKey),
-          child: widget.child ?? const SizedBox.expand(),
+        return GestureDetector(
+          onPanUpdate: (details) {
+            final RenderBox renderBox = context.findRenderObject() as RenderBox;
+            final size = renderBox.size;
+            _updateTouchPosition(details.localPosition, size);
+          },
+          onPanEnd: (_) => _resetTouch(),
+          onTapDown: (details) {
+            final RenderBox renderBox = context.findRenderObject() as RenderBox;
+            final size = renderBox.size;
+            _updateTouchPosition(details.localPosition, size);
+          },
+          onTapUp: (_) => _resetTouch(),
+          child: SizedBox.fromSize(
+            size: widget.size,
+            child: CustomPaint(
+              painter: _painter,
+              key: ValueKey<int>(_repaintKey),
+              child: child,
+            ),
+          ),
         );
       },
+      child: widget.child,
     );
   }
 
@@ -327,58 +311,4 @@ class _ShaderBackgroundState extends State<ShaderBackground>
   }
 }
 
-/// Custom shader painter for user-provided shaders.
-///
-/// This is a basic implementation that will be enhanced as the package
-/// develops more sophisticated shader handling capabilities.
-class _CustomShaderPainter extends BaseShaderPainter {
-  _CustomShaderPainter({
-    required super.shaderPath,
-    required super.uniforms,
-    required super.performanceLevel,
-  });
-
-  @override
-  void setCustomUniforms(FragmentShader shader, int index) {
-    // Set custom uniforms from the uniforms map
-    int currentIndex = index;
-
-    for (final entry in uniforms.entries) {
-      final key = entry.key;
-      final value = entry.value;
-
-      if (value is num) {
-        shader.setFloat(currentIndex++, value.toDouble());
-        debugPrint(
-          'Setting uniform $key to number $value at index ${currentIndex - 1}',
-        );
-      } else if (value is Color) {
-        shader.setFloat(currentIndex++, value.r);
-        shader.setFloat(currentIndex++, value.g);
-        shader.setFloat(currentIndex++, value.b);
-        shader.setFloat(currentIndex++, value.a);
-        debugPrint(
-          'Setting uniform $key to color $value at indices ${currentIndex - 4} to ${currentIndex - 1}',
-        );
-      } else if (value is Offset) {
-        shader.setFloat(currentIndex++, value.dx);
-        shader.setFloat(currentIndex++, value.dy);
-        debugPrint(
-          'Setting uniform $key to offset $value at indices ${currentIndex - 2} to ${currentIndex - 1}',
-        );
-      } else if (value is Size) {
-        shader.setFloat(currentIndex++, value.width);
-        shader.setFloat(currentIndex++, value.height);
-        debugPrint(
-          'Setting uniform $key to size $value at indices ${currentIndex - 2} to ${currentIndex - 1}',
-        );
-      }
-    }
-  }
-}
-
-/// Types of shader effects available.
-enum ShaderEffectType {
-  /// Plasma effect with flowing colors.
-  plasma,
-}
+enum ShaderEffect { plasma, glitch }

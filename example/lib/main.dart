@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_shader_fx_example/effects/effects.dart';
+import 'package:flutter_shader_fx_example/effects.dart';
 
 void main() {
   runApp(const MyApp());

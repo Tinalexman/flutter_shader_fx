@@ -36,6 +36,7 @@ export 'src/widgets/shader_background.dart';
 
 // Effect exports
 export 'src/effects/background/plasma_effect.dart';
+export 'src/effects/background/glitch_effect.dart';
 
 // Utility exports
 export 'src/utils/color_utils.dart';

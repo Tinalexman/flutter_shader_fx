@@ -45,22 +45,6 @@ class EffectController extends ChangeNotifier {
   bool _isAnimating = false;
   bool get isAnimating => _isAnimating;
 
-  /// Current touch position in normalized coordinates (0.0 to 1.0).
-  Offset _touchPosition = const Offset(0.5, 0.5);
-  Offset get touchPosition => _touchPosition;
-
-  /// Effect intensity (0.0 to 1.0).
-  double _intensity = 1.0;
-  double get intensity => _intensity;
-
-  /// Primary color for the effect.
-  Color _color1 = const Color(0xFF9C27B0);
-  Color get color1 => _color1;
-
-  /// Secondary color for the effect.
-  Color _color2 = const Color(0xFF00BCD4);
-  Color get color2 => _color2;
-
   /// Animation controller for managing animations.
   AnimationController? _animationController;
 
@@ -76,49 +60,6 @@ class EffectController extends ChangeNotifier {
   void setAnimationValue(double value) {
     if (_disposed) return;
     _animationValue = value.clamp(0.0, 1.0);
-    _safeNotifyListeners();
-  }
-
-  /// Sets the touch position.
-  ///
-  /// [position] should be in normalized coordinates (0.0 to 1.0).
-  void setTouchPosition(Offset position) {
-    if (_disposed) return;
-    _touchPosition = Offset(
-      position.dx.clamp(0.0, 1.0),
-      position.dy.clamp(0.0, 1.0),
-    );
-    _safeNotifyListeners();
-  }
-
-  /// Sets the effect intensity.
-  ///
-  /// [intensity] should be between 0.0 and 1.0.
-  void setIntensity(double intensity) {
-    if (_disposed) return;
-    _intensity = intensity.clamp(0.0, 1.0);
-    _safeNotifyListeners();
-  }
-
-  /// Sets the primary color.
-  void setColor1(Color color) {
-    if (_disposed) return;
-    _color1 = color;
-    _safeNotifyListeners();
-  }
-
-  /// Sets the secondary color.
-  void setColor2(Color color) {
-    if (_disposed) return;
-    _color2 = color;
-    _safeNotifyListeners();
-  }
-
-  /// Sets both colors at once.
-  void setColors(Color color1, Color color2) {
-    if (_disposed) return;
-    _color1 = color1;
-    _color2 = color2;
     _safeNotifyListeners();
   }
 
@@ -217,21 +158,6 @@ class EffectController extends ChangeNotifier {
     _updateTimer = null;
   }
 
-  /// Gets a map of current uniform values.
-  ///
-  /// This is useful for passing to shader painters.
-  Map<String, dynamic> getUniforms() {
-    if (_disposed) return {};
-
-    return {
-      'u_animation': _animationValue,
-      'u_touch': _touchPosition,
-      'u_intensity': _intensity,
-      'u_color1': _color1,
-      'u_color2': _color2,
-      'u_time': DateTime.now().millisecondsSinceEpoch / 1000.0,
-    };
-  }
 
   /// Safely notifies listeners only if not disposed and has listeners.
   void _safeNotifyListeners() {

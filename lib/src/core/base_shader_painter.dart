@@ -79,15 +79,15 @@ abstract class BaseShaderPainter extends CustomPainter {
     // Set standard uniforms
     shader.setFloat(floatIndex++, size.width);
     shader.setFloat(floatIndex++, size.height);
-
+    
     DateTime currentTime = DateTime.now();
     double elapsed = currentTime.difference(_startTime).inMilliseconds / 1000.0;
     shader.setFloat(floatIndex++, elapsed);
-
+    
     // Set the speed and intensity of the shader
     shader.setFloat(floatIndex++, uniforms['u_speed'] ?? 1.0);
     shader.setFloat(floatIndex++, uniforms['u_intensity'] ?? 1.0);
-
+  
     // Set custom uniforms
     setCustomUniforms(shader, floatIndex);
   }
