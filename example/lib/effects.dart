@@ -28,31 +28,20 @@ class _EffectsState extends State<Effects> {
               children: [
                 SizedBox(
                   width: double.infinity,
-                  height: 50,
+                  height: 300,
                   child: ShaderEffect.distortion(
                     performanceLevel: PerformanceLevel.medium,
-                    intensity: 0.75,
+                    intensity: 1.0,
                     speed: 1.25,
+                    // size: const Size(double.infinity, 300),
                     child: Container(
                       width: double.infinity,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'Distortion Effect',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                      height: 300,
+                      color: Colors.blue,
                     ),
                   ),
                 ),
+
                 // ShaderBackground.plasma(
                 //   colors: [Colors.white, Colors.red],
                 //   size: const Size(double.infinity, 400),
