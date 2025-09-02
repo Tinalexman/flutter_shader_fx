@@ -1,6 +1,6 @@
 name: flutter_shader_fx
-description: "Pre-built, Impeller-optimized shader effects for Flutter. Add GPU-accelerated visuals with simple widgets—no GLSL required. (WIP: Plasma available)"
-version: 0.0.1
+description: "Pre-built, Impeller-optimized shader effects for Flutter. Add GPU-accelerated visuals with simple widgets—no GLSL required. Plasma and Glitch effects available"
+version: 0.0.2
 homepage: https://github.com/Tinalexman/flutter_shader_fx
 repository: https://github.com/Tinalexman/flutter_shader_fx
 issue_tracker: https://github.com/Tinalexman/flutter_shader_fx/issues
@@ -21,6 +21,9 @@ dev_dependencies:
 flutter:
 
   shaders:
-    - shaders/plasma.frag
-    - shaders/digital_glitch.frag
+    - shaders/background/plasma.frag
+    - shaders/background/glitch.frag
+    
+    - shaders/effect/distortion.frag
+    - shaders/effect/test.frag
   

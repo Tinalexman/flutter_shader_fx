@@ -23,7 +23,8 @@
 ///
 /// ## Effect Categories
 ///
-/// - **Background Effects**: Plasma etc.
+/// - **Background Effects**: Plasma, Glitch (5 types)
+/// - **Interactive Effects**: Distortion
 library;
 
 // Core exports
@@ -33,12 +34,9 @@ export 'src/core/performance_manager.dart';
 
 // Widget exports
 export 'src/widgets/shader_background.dart';
+// export 'src/widgets/shader_effect.dart';
 
 // Effect exports
-export 'src/effects/background/plasma_effect.dart';
-export 'src/effects/background/glitch_effect.dart';
-
-// Utility exports
-export 'src/utils/color_utils.dart';
-export 'src/utils/math_utils.dart';
-export 'src/utils/performance_utils.dart';
+export 'src/library/background/plasma.dart';
+export 'src/library/background/glitch.dart';
+// export 'src/library/effect/distortion.dart';

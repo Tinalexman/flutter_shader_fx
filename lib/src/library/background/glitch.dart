@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import '../../core/base_shader_painter.dart';
-import '../../core/performance_manager.dart';
 
 /// A digital glitch effect painter that creates cyberpunk-style glitch artifacts.
 ///
@@ -13,7 +12,7 @@ import '../../core/performance_manager.dart';
 ///
 /// ```dart
 /// CustomPaint(
-///   painter: DigitalGlitchEffect(
+///   painter: Glitch(
 ///     colors: [Colors.cyan, Colors.magenta],
 ///     intensity: 0.8,
 ///     speed: 1.5,
@@ -21,7 +20,7 @@ import '../../core/performance_manager.dart';
 ///   ),
 /// )
 /// ```
-class GlitchEffect extends BaseShaderPainter {
+class Glitch extends BaseShaderPainter {
   /// Creates a digital glitch effect painter.
   ///
   /// [colors] are the colors to use for the glitch effect.
@@ -30,15 +29,15 @@ class GlitchEffect extends BaseShaderPainter {
   /// [glitchType] determines the type of glitch artifacts.
   /// [touchPosition] is the touch/mouse position for interactive glitch.
   /// [performanceLevel] determines the quality settings.
-  GlitchEffect({
+  Glitch({
     required this.colors,
     this.intensity = 0.8,
     this.speed = 1.0,
     this.glitchType = GlitchType.digital,
     this.touchPosition,
-    PerformanceLevel? performanceLevel,
+    super.deviceDensity = 1.0,
   }) : super(
-         shaderPath: 'glitch.frag',
+         shaderPath: 'background/glitch.frag',
          uniforms: {
            'u_intensity': intensity,
            'u_color1': colors.isNotEmpty ? colors[0] : const Color(0xFF00FFFF),
@@ -46,7 +45,6 @@ class GlitchEffect extends BaseShaderPainter {
            'u_speed': speed,
            'u_glitch_type': glitchType.index.toDouble(),
          },
-         performanceLevel: performanceLevel ?? PerformanceLevel.medium,
        );
 
   /// Colors for the glitch effect.
@@ -77,7 +75,7 @@ class GlitchEffect extends BaseShaderPainter {
     Offset touchPos = getTouchPosition();
     shader.setFloat(floatIndex++, touchPos.dx);
     shader.setFloat(floatIndex++, touchPos.dy);
-    
+
     // Set colors (default to cyan and magenta for cyberpunk look)
     Color color1 = uniforms['u_color1'] as Color? ?? const Color(0xFF00FFFF);
     Color color2 = uniforms['u_color2'] as Color? ?? const Color(0xFFFF00FF);
@@ -104,13 +102,12 @@ class GlitchEffect extends BaseShaderPainter {
   }
 
   @override
-  bool shouldRepaint(covariant GlitchEffect oldDelegate) {
+  bool shouldRepaint(covariant Glitch oldDelegate) {
     return colors != oldDelegate.colors ||
         intensity != oldDelegate.intensity ||
         speed != oldDelegate.speed ||
         glitchType != oldDelegate.glitchType ||
-        touchPosition != oldDelegate.touchPosition ||
-        performanceLevel != oldDelegate.performanceLevel;
+        touchPosition != oldDelegate.touchPosition;
   }
 }
 

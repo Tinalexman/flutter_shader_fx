@@ -2,7 +2,7 @@
 
 A comprehensive Flutter package providing pre-built, performance‑optimized shader effects. Built for Impeller (Vulkan/Metal) with a simple, widget‑first API so developers can add stunning, GPU‑accelerated visuals without writing GLSL.
 
-> Status: Work in Progress. Only the Plasma background effect is currently available. Additional effects will arrive in upcoming releases.
+> Status: Early Release. Plasma and Glitch background effects are available. Additional effects will arrive in upcoming releases.
 
 ---
 
@@ -18,7 +18,8 @@ A comprehensive Flutter package providing pre-built, performance‑optimized sha
 ## Features
 
 - Currently Available
-  - **Background: Plasma**
+  - **Background: Plasma** - Organic flowing colors with customizable palette
+  - **Background: Glitch** - 5 different glitch types (Digital, Analog, Corruption, Tearing, Wave)
 
 - Coming Soon (WIP)
   - Backgrounds: Noise Field, Liquid Metal, Fractal, Particle Field, Wave, Galaxy, Aurora
@@ -101,7 +102,22 @@ ShaderBackground.plasma(
 )
 ```
 
-> Coming soon: Additional effects and interactive widgets. API previews may appear in docs, but only Plasma is available right now.
+### Background: Glitch (simple)
+```dart
+ShaderBackground.glitch()
+```
+
+### Background: Glitch (customized)
+```dart
+ShaderBackground.glitch(
+  colors: const [Colors.cyan, Colors.magenta],
+  glitchType: GlitchType.analog,
+  speed: 1.2,
+  intensity: 0.9,
+)
+```
+
+> Additional effects and interactive widgets coming soon. API previews may appear in docs.
 
 ---
 
@@ -212,7 +228,7 @@ flutter test
 
 ## Example App
 
-A comprehensive demo is available under `example/`. The demo will progressively showcase more effects as they are implemented. For now, it focuses on Plasma.
+A comprehensive demo is available under `example/`. The demo showcases both Plasma and Glitch effects with interactive examples and customization options.
 
 Run the example:
 
@@ -225,8 +241,8 @@ flutter run
 
 ## Roadmap
 
-Phase 1: Foundation
-- Core architecture and first shipping effect (Plasma background)
+Phase 1: Foundation ✅
+- Core architecture and first shipping effects (Plasma and Glitch backgrounds)
 
 Phase 2–4: Effects
 - Implement background effects first, then interactive, loading, decorative

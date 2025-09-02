@@ -2,8 +2,6 @@ import 'dart:developer';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
-import 'performance_manager.dart';
-
 /// Base class for all shader painters in the Flutter Shader FX package.
 ///
 /// This class provides common functionality for loading and managing GLSL shaders,
@@ -19,7 +17,7 @@ abstract class BaseShaderPainter extends CustomPainter {
   BaseShaderPainter({
     required this.shaderPath,
     this.uniforms = const {},
-    this.performanceLevel = PerformanceLevel.medium,
+    this.deviceDensity = 1.0,
   });
 
   /// Path to the GLSL fragment shader file.
@@ -31,13 +29,11 @@ abstract class BaseShaderPainter extends CustomPainter {
   /// Values can be numbers, colors, or other supported types.
   final Map<String, dynamic> uniforms;
 
-  /// Performance level for the shader effect.
-  ///
-  /// This affects quality settings and optimization strategies.
-  final PerformanceLevel performanceLevel;
-
   /// The compiled fragment shader.
   FragmentShader? _fragmentShader;
+
+  /// The device density.
+  final double deviceDensity;
 
   /// The start time of the shader effect.
   final DateTime _startTime = DateTime.now();
@@ -77,17 +73,17 @@ abstract class BaseShaderPainter extends CustomPainter {
     int floatIndex = 0;
 
     // Set standard uniforms
-    shader.setFloat(floatIndex++, size.width);
-    shader.setFloat(floatIndex++, size.height);
-    
+    shader.setFloat(floatIndex++, size.width * deviceDensity);
+    shader.setFloat(floatIndex++, size.height * deviceDensity);
+
     DateTime currentTime = DateTime.now();
     double elapsed = currentTime.difference(_startTime).inMilliseconds / 1000.0;
     shader.setFloat(floatIndex++, elapsed);
-    
+
     // Set the speed and intensity of the shader
     shader.setFloat(floatIndex++, uniforms['u_speed'] ?? 1.0);
     shader.setFloat(floatIndex++, uniforms['u_intensity'] ?? 1.0);
-  
+
     // Set custom uniforms
     setCustomUniforms(shader, floatIndex);
   }

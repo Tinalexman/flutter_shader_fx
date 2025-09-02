@@ -4,8 +4,7 @@ import 'package:flutter_shader_fx/flutter_shader_fx.dart';
 /// A widget that displays shader effects as a background.
 ///
 /// This widget provides easy-to-use background effects with a simple API.
-/// It automatically handles performance optimization and provides graceful
-/// fallbacks when shaders fail to load.
+/// It automatically handles performance optimization.
 ///
 /// ## Usage
 ///
@@ -20,14 +19,10 @@ import 'package:flutter_shader_fx/flutter_shader_fx.dart';
 ///   intensity: 0.8,
 /// )
 ///
-/// // Custom shader background
-/// ShaderBackground.custom(
-///   shader: 'my_effect.frag',
-///   uniforms: {
-///     'u_color1': Colors.red,
-///     'u_color2': Colors.blue,
-///     'u_speed': 2.0,
-///   },
+/// // Glitch effect
+/// ShaderBackground.glitch(
+///   colors: [Colors.white, Colors.blue],
+///   glitchType: GlitchType.analog,
 /// )
 /// ```
 class ShaderBackground extends StatefulWidget {
@@ -46,8 +41,9 @@ class ShaderBackground extends StatefulWidget {
     this.intensity = 1.0,
     this.performanceLevel,
     this.size = const Size(100, 100),
+    this.deviceDensity = 1.0,
   }) : uniforms = const {},
-       effect = ShaderEffect.plasma,
+       effect = BackgroundEffect.plasma,
        glitchType = null;
 
   /// Creates a shader background with a glitch effect.
@@ -67,14 +63,15 @@ class ShaderBackground extends StatefulWidget {
     this.performanceLevel,
     this.glitchType = GlitchType.corruption,
     this.size = const Size(100, 100),
+    this.deviceDensity = 1.0,
   }) : uniforms = const {},
-       effect = ShaderEffect.glitch;
+       effect = BackgroundEffect.glitch;
 
   /// The size of the background.
   final Size size;
 
   /// The type of shader to be used;
-  final ShaderEffect effect;
+  final BackgroundEffect effect;
 
   /// The type of glitch effect.
   final GlitchType? glitchType;
@@ -96,6 +93,9 @@ class ShaderBackground extends StatefulWidget {
 
   /// Performance level for the effect.
   final PerformanceLevel? performanceLevel;
+
+  /// The device density.
+  final double deviceDensity;
 
   @override
   State<ShaderBackground> createState() => _ShaderBackgroundState();
@@ -201,21 +201,19 @@ class _ShaderBackgroundState extends State<ShaderBackground>
   void _createPainter() {
     _painter?.dispose();
 
-    if (widget.effect == ShaderEffect.plasma) {
-      _painter = PlasmaEffect(
+    if (widget.effect == BackgroundEffect.plasma) {
+      _painter = Plasma(
         colors: widget.colors,
         intensity: widget.intensity,
-        performanceLevel: widget.performanceLevel,
         speed: widget.speed,
         touchPosition: getTouchPosition,
       );
     }
-    if (widget.effect == ShaderEffect.glitch) {
-      _painter = GlitchEffect(
+    if (widget.effect == BackgroundEffect.glitch) {
+      _painter = Glitch(
         colors: widget.colors,
         intensity: widget.intensity,
         glitchType: widget.glitchType ?? GlitchType.corruption,
-        performanceLevel: widget.performanceLevel,
         speed: widget.speed,
         touchPosition: getTouchPosition,
       );
@@ -311,4 +309,4 @@ class _ShaderBackgroundState extends State<ShaderBackground>
   }
 }
 
-enum ShaderEffect { plasma, glitch }
+enum BackgroundEffect { plasma, glitch }

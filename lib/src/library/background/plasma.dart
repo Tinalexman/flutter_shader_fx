@@ -1,6 +1,5 @@
 import 'dart:ui';
 import '../../core/base_shader_painter.dart';
-import '../../core/performance_manager.dart';
 
 /// A plasma effect painter that creates flowing, organic color patterns.
 ///
@@ -11,37 +10,35 @@ import '../../core/performance_manager.dart';
 ///
 /// ```dart
 /// CustomPainter(
-///   painter: PlasmaEffect(
+///   painter: Plasma(
 ///     colors: [Colors.purple, Colors.cyan],
 ///     speed: 1.0,
 ///     intensity: 0.8,
-///     performanceLevel: PerformanceLevel.low,
 ///   ),
 ///   touchPosition: () => Offset(0.5, 0.5),
 /// )
 /// ```
-class PlasmaEffect extends BaseShaderPainter {
+class Plasma extends BaseShaderPainter {
   /// Creates a plasma effect painter.
   ///
   /// [colors] are the colors to use for the plasma effect.
   /// [speed] controls the animation speed (0.0 to 2.0).
   /// [intensity] controls the effect intensity (0.0 to 1.0).
   /// [performanceLevel] determines the quality settings.
-  PlasmaEffect({
+  Plasma({
     required this.colors,
     this.speed = 1.0,
     this.intensity = 1.0,
     this.touchPosition,
-    PerformanceLevel? performanceLevel,
+    super.deviceDensity = 1.0,
   }) : super(
-         shaderPath: 'plasma.frag',
+         shaderPath: 'background/plasma.frag',
          uniforms: {
            'u_intensity': intensity,
            'u_color1': colors.isNotEmpty ? colors[0] : const Color(0xFF9C27B0),
            'u_color2': colors.length > 1 ? colors[1] : const Color(0xFF00BCD4),
            'u_speed': speed,
          },
-         performanceLevel: performanceLevel ?? PerformanceLevel.medium,
        );
 
   /// Colors for the plasma effect.
@@ -91,12 +88,11 @@ class PlasmaEffect extends BaseShaderPainter {
   }
 
   @override
-  bool shouldRepaint(covariant PlasmaEffect oldDelegate) {
+  bool shouldRepaint(covariant Plasma oldDelegate) {
     int oldColorsHashCode = colors.hashCode;
     int newColorsHashCode = oldDelegate.colors.hashCode;
     return oldColorsHashCode != newColorsHashCode ||
         speed != oldDelegate.speed ||
-        intensity != oldDelegate.intensity ||
-        performanceLevel != oldDelegate.performanceLevel;
+        intensity != oldDelegate.intensity;
   }
 }
